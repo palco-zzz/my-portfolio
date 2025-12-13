@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useRef, useId } from 'react';
+import { SpeedInsights } from "@vercel/speed-insights/react"
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Terminal,
@@ -127,7 +128,8 @@ const SparklesCore = ({
 
 // --- FLOATING IMAGES BACKGROUND (Parallax Effect) ---
 const FloatingImagesBackground = () => {
-    const images = [
+    // Define images
+    const allImages = [
         { src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop", x: "10%", y: "10%", size: "w-32 md:w-48" }, // Coding
         { src: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=2070&auto=format&fit=crop", x: "80%", y: "20%", size: "w-40 md:w-56" }, // Server
         { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop", x: "5%", y: "60%", size: "w-28 md:w-40" }, // Chip
@@ -135,9 +137,13 @@ const FloatingImagesBackground = () => {
         { src: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?q=80&w=2070&auto=format&fit=crop", x: "50%", y: "40%", size: "w-24 md:w-32" }, // Network
     ];
 
+    // OPTIMIZATION: Show fewer images on mobile to reduce layer count/compositing
+    // We can use CSS to hide them, or simple logic. CSS is better for SSR/hydration consistency.
+    // Using 'hidden md:block' on the last 3 images.
+
     return (
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-            {images.map((img, index) => (
+            {allImages.map((img, index) => (
                 <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 50 }}
@@ -154,7 +160,8 @@ const FloatingImagesBackground = () => {
                         delay: index * 0.5
                     }}
                     style={{ left: img.x, top: img.y }}
-                    className={`absolute ${img.size} aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/5 opacity-30 filter blur-[1px]`}
+                    // OPTIMIZATION: Hidden on mobile for index > 1 (keep only first 2)
+                    className={`absolute ${img.size} ${index > 1 ? 'hidden md:block' : 'block'} aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/5 opacity-30 filter blur-[1px]`}
                 >
                     <img src={img.src} alt="Background decoration" className="w-full h-full object-cover" />
                 </motion.div>
@@ -164,7 +171,8 @@ const FloatingImagesBackground = () => {
 };
 
 // --- LOADING SCREEN COMPONENT ---
-const LoadingScreen = () => {
+// Re-added isMobile prop processing for density
+const LoadingScreen = ({ isMobile }) => {
     return (
         <motion.div
             initial={{ opacity: 1 }}
@@ -177,7 +185,8 @@ const LoadingScreen = () => {
                     background="transparent"
                     minSize={0.6}
                     maxSize={1.4}
-                    particleDensity={50}
+                    // OPTIMIZATION: Reduce density on mobile
+                    particleDensity={isMobile ? 30 : 50}
                     className="w-full h-full"
                     particleColor="#FFFFFF"
                 />
@@ -246,8 +255,19 @@ const scaleHover = {
 export default function App() {
     const [loading, setLoading] = useState(true);
     const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile Menu State
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false); // Mobile Detection State
     const playerRef = useRef(null);
+
+    // Mobile Detection Logic
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Loading Timer
     useEffect(() => {
@@ -365,8 +385,12 @@ export default function App() {
         setIsMobileMenuOpen(false);
     }
 
+    // OPTIMIZATION: Reduce blur on mobile for simpler rendering
+    const blurClass = "backdrop-blur-md md:backdrop-blur-xl";
+
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-blue-500/30 selection:text-blue-200 overflow-x-hidden">
+            <SpeedInsights />
 
             {/* Global Style for Smooth Scrolling */}
             <style>{`
@@ -386,6 +410,7 @@ export default function App() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={toggleMusic}
+                    // OPTIMIZATION: Less blur on button
                     className="fixed bottom-6 right-6 z-50 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-white shadow-lg hover:bg-white/20 transition-all group"
                     title={isMusicPlaying ? "Pause Music" : "Play Music"}
                 >
@@ -410,9 +435,9 @@ export default function App() {
                 </motion.button>
             )}
 
-            {/* Loading Screen Overlay */}
+            {/* Loading Screen Overlay - Moving pass isMobile prop */}
             <AnimatePresence>
-                {loading && <LoadingScreen key="loading-screen" />}
+                {loading && <LoadingScreen key="loading-screen" isMobile={isMobile} />}
             </AnimatePresence>
 
             {/* Main Content (Only visible after loading starts fading or exiting) */}
@@ -421,17 +446,18 @@ export default function App() {
                 <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
                     <motion.div
                         animate={{ x: [0, 30, -20, 0], y: [0, -50, 20, 0], scale: [1, 1.1, 0.9, 1] }}
-                        transition={{ duration: 10, repeat: Infinity, repeatType: "mirror" }}
+                        // OPTIMIZATION: Slower duration on mobile
+                        transition={{ duration: isMobile ? 15 : 10, repeat: Infinity, repeatType: "mirror" }}
                         className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
                     />
                     <motion.div
                         animate={{ x: [0, -40, 20, 0], y: [0, 40, -30, 0], scale: [1, 0.9, 1.1, 1] }}
-                        transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", delay: 1 }}
+                        transition={{ duration: isMobile ? 18 : 12, repeat: Infinity, repeatType: "mirror", delay: 1 }}
                         className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
                     />
                     <motion.div
                         animate={{ x: [0, 50, -30, 0], y: [0, 30, -50, 0], scale: [1, 1.2, 0.8, 1] }}
-                        transition={{ duration: 15, repeat: Infinity, repeatType: "mirror", delay: 2 }}
+                        transition={{ duration: isMobile ? 22 : 15, repeat: Infinity, repeatType: "mirror", delay: 2 }}
                         className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
                     />
                 </div>
@@ -443,7 +469,8 @@ export default function App() {
                     transition={{ duration: 0.8, type: "spring", delay: 3.5 }}
                     className="fixed top-0 w-full z-50 px-4 md:px-6 py-4"
                 >
-                    <div className="max-w-5xl mx-auto backdrop-blur-xl bg-[#171717]/60 border border-white/10 rounded-full px-6 py-3 flex justify-between items-center relative z-50">
+                    {/* OPTIMIZATION: Switch blurs */}
+                    <div className={`max-w-5xl mx-auto bg-[#171717]/60 ${blurClass} border border-white/10 rounded-full px-6 py-3 flex justify-between items-center relative z-50`}>
                         <a href="#" className="font-bold text-xl tracking-tight flex items-center gap-2">
                             <div className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center">
                                 <Terminal className="w-4 h-4" />
@@ -485,7 +512,8 @@ export default function App() {
                                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                                className="absolute top-20 left-4 right-4 bg-[#171717]/90 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-6 md:hidden z-40 flex flex-col gap-6 shadow-2xl"
+                                // OPTIMIZATION: Reduced blur
+                                className="absolute top-20 left-4 right-4 bg-[#171717]/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:hidden z-40 flex flex-col gap-6 shadow-2xl"
                             >
                                 <div className="flex flex-col gap-4 text-center text-lg font-medium text-neutral-300">
                                     <a href="#about" onClick={closeMobileMenu} className="hover:text-white transition-colors py-2 border-b border-white/5">Profile</a>
@@ -516,7 +544,8 @@ export default function App() {
                         {/* Hero Title Box */}
                         <motion.div
                             variants={fadeInUp}
-                            className="md:col-span-2 md:row-span-2 backdrop-blur-xl bg-[#171717]/80 border border-white/10 rounded-[2rem] p-8 flex flex-col justify-between min-h-[400px] relative overflow-hidden group z-10"
+                            // OPTIMIZATION: Use Switch blur
+                            className={`md:col-span-2 md:row-span-2 bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-8 flex flex-col justify-between min-h-[400px] relative overflow-hidden group z-10`}
                         >
                             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
                                 <Cpu className="w-32 h-32" />
@@ -546,7 +575,8 @@ export default function App() {
                         {/* Profile Photo Box */}
                         <motion.div
                             variants={fadeInUp}
-                            className="md:col-span-1 md:row-span-2 backdrop-blur-xl bg-[#171717]/80 border border-white/10 rounded-[2rem] overflow-hidden relative group z-10"
+                            // OPTIMIZATION: Use Switch blur
+                            className={`md:col-span-1 md:row-span-2 bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] overflow-hidden relative group z-10`}
                         >
                             <motion.img
                                 whileHover={{ scale: 1.1 }}
@@ -565,7 +595,8 @@ export default function App() {
                         <motion.div
                             variants={fadeInUp}
                             whileHover={{ y: -5, boxShadow: "0 10px 30px -10px rgba(34, 197, 94, 0.2)" }}
-                            className="backdrop-blur-xl bg-[#171717]/80 border border-white/10 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center z-10"
+                            // OPTIMIZATION: Use Switch blur
+                            className={`bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center z-10`}
                         >
                             <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mb-3">
                                 <Languages className="w-6 h-6" />
@@ -578,7 +609,8 @@ export default function App() {
                         <motion.div
                             variants={fadeInUp}
                             whileHover={{ y: -5 }}
-                            className="backdrop-blur-xl bg-[#171717]/80 border border-white/10 rounded-[2rem] p-6 flex items-center justify-around z-10"
+                            // OPTIMIZATION: Use Switch blur
+                            className={`bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-6 flex items-center justify-around z-10`}
                         >
                             {[
                                 { Icon: Linkedin, link: "#" },
@@ -643,7 +675,8 @@ export default function App() {
                                 whileHover="hover"
                                 animate="rest"
                                 custom={scaleHover}
-                                className="backdrop-blur-xl bg-[#171717]/60 border border-white/10 rounded-[2rem] p-3 group cursor-pointer"
+                                // OPTIMIZATION: Use Switch blur and solid bg if needed for perf
+                                className={`bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer`}
                             >
                                 <motion.div variants={scaleHover} className="rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4 relative">
                                     <img src="https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=1887&auto=format&fit=crop"
@@ -670,7 +703,8 @@ export default function App() {
                                 whileHover="hover"
                                 animate="rest"
                                 custom={scaleHover}
-                                className="backdrop-blur-xl bg-[#171717]/60 border border-white/10 rounded-[2rem] p-3 group cursor-pointer"
+                                // OPTIMIZATION: Use Switch blur
+                                className={`bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer`}
                             >
                                 <motion.div variants={scaleHover} className="rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4 relative">
                                     <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop"
@@ -695,7 +729,8 @@ export default function App() {
                                 variants={fadeInUp}
                                 whileHover={{ scale: 1.01 }}
                                 transition={{ type: "spring", stiffness: 300 }}
-                                className="md:col-span-2 backdrop-blur-xl bg-[#171717]/60 border border-white/10 rounded-[2rem] p-8 md:p-12 relative overflow-hidden group cursor-pointer flex flex-col md:flex-row items-center gap-8"
+                                // OPTIMIZATION: Use Switch blur
+                                className={`md:col-span-2 bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-8 md:p-12 relative overflow-hidden group cursor-pointer flex flex-col md:flex-row items-center gap-8`}
                             >
                                 <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-purple-600/20 to-transparent -z-10" />
 
@@ -744,7 +779,8 @@ export default function App() {
                                         key={index}
                                         variants={fadeInUp}
                                         whileHover={{ y: -10, backgroundColor: "rgba(255,255,255,0.08)" }}
-                                        className="backdrop-blur-xl bg-[#171717]/60 border border-white/10 p-8 rounded-[2rem] transition-colors"
+                                        // OPTIMIZATION: Use Switch blur
+                                        className={`bg-[#171717]/60 ${blurClass} border border-white/10 p-8 rounded-[2rem] transition-colors`}
                                     >
                                         <div className={`w-12 h-12 ${service.bg} rounded-2xl flex items-center justify-center ${service.color} mb-6`}>
                                             <Icon className="w-6 h-6" />
@@ -765,7 +801,8 @@ export default function App() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="backdrop-blur-xl bg-[#171717]/60 border border-white/10 rounded-[3rem] p-10 md:p-16 text-center relative overflow-hidden scroll-mt-32"
+                        // OPTIMIZATION: Use Switch blur
+                        className={`bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[3rem] p-10 md:p-16 text-center relative overflow-hidden scroll-mt-32`}
                     >
                         <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-900/40 to-purple-900/40 opacity-50" />
 
