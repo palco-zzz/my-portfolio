@@ -251,12 +251,53 @@ const scaleHover = {
     }
 };
 
+// --- PROJECTS DATA ---
+const PROJECTS = [
+    {
+        id: "proj1",
+        title: "Network Troubleshooting Guide",
+        category: "Documentation",
+        image: "https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=1887&auto=format&fit=crop",
+        description: "An interactive, step-by-step documentation platform designed to help TJKT students diagnose network issues systematically.",
+        challenge: "Students struggled to visualize the invisible flow of data packets during troubleshooting, leading to confusion and ineffective diagnosis.",
+        solution: "Built a reproducible guide using interactive diagrams and decision trees that visualize the flow of data.",
+        features: ["Flowchart-based diagnosis", "Cisco Packet Tracer scenarios", "Mobile-friendly reference"],
+        tech: ["React", "Mermaid.js", "Docusaurus"],
+        span: "md:col-span-1"
+    },
+    {
+        id: "proj2",
+        title: "Local Micro SaaS Analysis",
+        category: "Consulting",
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop",
+        description: "A comprehensive market research and architectural blueprint for a SaaS product tailored to the Indonesian MSME market.",
+        challenge: "Global SaaS solutions are often too expensive or complex for local small businesses, creating a barrier to entry.",
+        solution: "Designed a workflow architecture that adapts global AI trends for local needs using affordable APIs and familiar interfaces.",
+        features: ["Local Payment Gateway design", "WhatsApp-first UI/UX approach", "Localized pricing model"],
+        tech: ["Next.js Architecture", "Stripe/Midtrans API", "Figma"],
+        span: "md:col-span-1"
+    },
+    {
+        id: "proj3",
+        title: "Prompt Engineering for Education",
+        category: "UX & AI Optimization",
+        image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=2070&auto=format&fit=crop",
+        description: "A system of optimized AI prompts to generate personalized teaching materials for vocational students.",
+        challenge: "Generic AI outputs often lack the specific context needed for vocational (SMK) technical training.",
+        solution: "Developed a framework of 'Persona-Context-Task' prompts that output consistent, high-quality lesson plans and quizzes.",
+        features: ["Adaptive difficulty levels", "Analogies generator", "Persona-based responses"],
+        tech: ["OpenAI API", "Python scripts", "Prompt Patterns"],
+        span: "md:col-span-2"
+    }
+];
+
 // --- MAIN APP COMPONENT ---
 export default function App() {
     const [loading, setLoading] = useState(true);
     const [isMusicPlaying, setIsMusicPlaying] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false); // Mobile Detection State
+    const [selectedId, setSelectedId] = useState(null); // Project Expansion State
     const playerRef = useRef(null);
 
     // Mobile Detection Logic
@@ -268,6 +309,15 @@ export default function App() {
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
+
+    // Scroll Lock when Modal is Open
+    useEffect(() => {
+        if (selectedId) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "auto";
+        }
+    }, [selectedId]);
 
     // Loading Timer
     useEffect(() => {
@@ -646,7 +696,7 @@ export default function App() {
                         </div>
                     </motion.section>
 
-                    {/* Projects Section */}
+                    {/* Projects Section - Renovated for Expansion */}
                     <section id="projects" className="mb-24 scroll-mt-32">
                         <motion.div
                             initial="hidden"
@@ -661,95 +711,157 @@ export default function App() {
                             </div>
                         </motion.div>
 
-                        <motion.div
-                            className="grid grid-cols-1 md:grid-cols-2 gap-6"
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: "-100px" }}
-                            variants={staggerContainer}
-                        >
-                            {/* Project 1 */}
-                            <motion.div
-                                variants={fadeInUp}
-                                initial="rest"
-                                whileHover="hover"
-                                animate="rest"
-                                custom={scaleHover}
-                                // OPTIMIZATION: Use Switch blur and solid bg if needed for perf
-                                className={`bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer`}
-                            >
-                                <motion.div variants={scaleHover} className="rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4 relative">
-                                    <img src="https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=1887&auto=format&fit=crop"
-                                        alt="Technical Documentation"
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium">Read Guide</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                            {PROJECTS.map((project) => (
+                                <motion.div
+                                    layoutId={`card-container-${project.id}`}
+                                    key={project.id}
+                                    onClick={() => setSelectedId(project.id)}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    whileHover={{ scale: 1.02 }}
+                                    // Switch blur for performance
+                                    className={`${project.span} bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer hover:border-white/20 transition-colors z-0`}
+                                >
+                                    <motion.div
+                                        layoutId={`card-image-container-${project.id}`}
+                                        className="rounded-[1.5rem] overflow-hidden aspect-[4/3] md:aspect-video mb-4 relative"
+                                    >
+                                        <motion.img
+                                            layoutId={`card-image-${project.id}`}
+                                            src={project.image}
+                                            alt={project.title}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium">View Details</span>
+                                        </div>
+                                    </motion.div>
+                                    <div className="px-3 pb-2">
+                                        <motion.h3 layoutId={`card-title-${project.id}`} className="text-xl font-bold mb-1">{project.title}</motion.h3>
+                                        <motion.p layoutId={`card-category-${project.id}`} className="text-neutral-400 text-sm mb-2">{project.category}</motion.p>
+                                        <p className="text-neutral-500 text-sm line-clamp-2">{project.description}</p>
                                     </div>
                                 </motion.div>
-                                <div className="px-3 pb-2">
-                                    <h3 className="text-xl font-bold mb-1">Network Troubleshooting Guide</h3>
-                                    <p className="text-neutral-400 text-sm line-clamp-2">Interactive step-by-step modules for network diagnosis, designed to be reproducible.</p>
-                                    <div className="flex gap-2 mt-4 flex-wrap">
-                                        <span className="text-xs px-2 py-1 rounded-md bg-white/5 border border-white/5 text-neutral-300">Documentation</span>
-                                        <span className="text-xs px-2 py-1 rounded-md bg-white/5 border border-white/5 text-neutral-300">Networking</span>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            {/* Project 2 */}
-                            <motion.div
-                                variants={fadeInUp}
-                                initial="rest"
-                                whileHover="hover"
-                                animate="rest"
-                                custom={scaleHover}
-                                // OPTIMIZATION: Use Switch blur
-                                className={`bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer`}
-                            >
-                                <motion.div variants={scaleHover} className="rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4 relative">
-                                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop"
-                                        alt="Micro SaaS Dashboard"
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium">View Demo</span>
-                                    </div>
-                                </motion.div>
-                                <div className="px-3 pb-2">
-                                    <h3 className="text-xl font-bold mb-1">Local Micro SaaS Analysis</h3>
-                                    <p className="text-neutral-400 text-sm line-clamp-2">Market research and workflow architecture for SaaS ideation, adapting global AI trends.</p>
-                                    <div className="flex gap-2 mt-4 flex-wrap">
-                                        <span className="text-xs px-2 py-1 rounded-md bg-white/5 border border-white/5 text-neutral-300">Consulting</span>
-                                        <span className="text-xs px-2 py-1 rounded-md bg-white/5 border border-white/5 text-neutral-300">Web Dev</span>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            {/* Project 3 */}
-                            <motion.div
-                                variants={fadeInUp}
-                                whileHover={{ scale: 1.01 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                                // OPTIMIZATION: Use Switch blur
-                                className={`md:col-span-2 bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-8 md:p-12 relative overflow-hidden group cursor-pointer flex flex-col md:flex-row items-center gap-8`}
-                            >
-                                <div className="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-purple-600/20 to-transparent -z-10" />
-
-                                <div className="flex-1 z-10">
-                                    <span className="text-purple-400 text-sm font-bold tracking-wider mb-2 block uppercase">UX & AI Optimization</span>
-                                    <h3 className="text-3xl font-bold mb-4">Prompt Engineering for Education</h3>
-                                    <p className="text-neutral-400 mb-6">Developing AI prompt systems to create adaptive and personalized learning materials, improving student comprehension rates.</p>
-                                    <button className="bg-white text-black px-6 py-3 rounded-full text-sm font-bold hover:bg-neutral-200 transition">Learn the Method</button>
-                                </div>
-                                <div className="flex-1 w-full relative">
-                                    <motion.img
-                                        whileHover={{ rotate: 0 }}
-                                        src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=2070&auto=format&fit=crop"
-                                        className="rounded-xl shadow-2xl transform rotate-1 border border-white/10" alt="UX Flow"
-                                    />
-                                </div>
-                            </motion.div>
-                        </motion.div>
+                            ))}
+                        </div>
                     </section>
+
+                    {/* EXPANDED PROJECT MODAL */}
+                    <AnimatePresence>
+                        {selectedId && (
+                            <>
+                                {/* Backdrop */}
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    onClick={() => setSelectedId(null)}
+                                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                                />
+
+                                {/* Modal */}
+                                {PROJECTS.filter(item => item.id === selectedId).map(project => (
+                                    <motion.div
+                                        layoutId={`card-container-${project.id}`}
+                                        key={project.id}
+                                        className="fixed inset-0 z-50 overflow-y-auto bg-[#1a1a1a] md:m-8 md:rounded-[2rem] border border-white/10 flex flex-col"
+                                    >
+                                        {/* Close Button */}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setSelectedId(null); }}
+                                            className="absolute top-6 right-6 z-50 p-2 bg-black/50 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-colors"
+                                        >
+                                            <X className="w-6 h-6" />
+                                        </button>
+
+                                        <div className="max-w-5xl mx-auto w-full bg-[#1a1a1a] min-h-full">
+                                            {/* Hero Image */}
+                                            <motion.div
+                                                layoutId={`card-image-container-${project.id}`}
+                                                className="w-full h-[40vh] md:h-[50vh] relative overflow-hidden"
+                                            >
+                                                <motion.img
+                                                    layoutId={`card-image-${project.id}`}
+                                                    src={project.image}
+                                                    alt={project.title}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent" />
+                                            </motion.div>
+
+                                            <div className="p-8 md:p-12 -mt-20 relative z-10">
+                                                <motion.div layoutId={`card-category-${project.id}`} className="inline-block px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-500/10">
+                                                    {project.category}
+                                                </motion.div>
+
+                                                <motion.h3 layoutId={`card-title-${project.id}`} className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+                                                    {project.title}
+                                                </motion.h3>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+                                                    <div className="space-y-8">
+                                                        <div>
+                                                            <h4 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                                                                <Lightbulb className="w-5 h-5 text-yellow-500" /> The Challenge
+                                                            </h4>
+                                                            <p className="text-neutral-400 leading-relaxed">
+                                                                {project.challenge}
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
+                                                                <Wrench className="w-5 h-5 text-green-500" /> The Solution
+                                                            </h4>
+                                                            <p className="text-neutral-400 leading-relaxed">
+                                                                {project.solution}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-white/5 rounded-2xl p-8 border border-white/5">
+                                                        <h4 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                                                            <Code2 className="w-5 h-5 text-purple-500" /> Key Features & Tech
+                                                        </h4>
+
+                                                        <div className="mb-6">
+                                                            <p className="text-xs text-neutral-500 uppercase tracking-widest mb-3">Key Features</p>
+                                                            <ul className="space-y-2">
+                                                                {project.features.map((feature, i) => (
+                                                                    <li key={i} className="flex items-center gap-2 text-sm text-neutral-300">
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                                                        {feature}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="text-xs text-neutral-500 uppercase tracking-widest mb-3">Technology Stack</p>
+                                                            <div className="flex flex-wrap gap-2">
+                                                                {project.tech.map((t, i) => (
+                                                                    <span key={i} className="px-3 py-1 bg-white/10 rounded-lg text-xs font-medium text-white border border-white/5">
+                                                                        {t}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-center pt-8 border-t border-white/5">
+                                                    <button onClick={() => setSelectedId(null)} className="text-neutral-400 hover:text-white transition-colors text-sm font-medium">
+                                                        Close Project Details
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </>
+                        )}
+                    </AnimatePresence>
 
                     {/* Services Section */}
                     <section id="services" className="mb-24 scroll-mt-32">
