@@ -127,19 +127,17 @@ const SparklesCore = ({
 };
 
 // --- FLOATING IMAGES BACKGROUND (Parallax Effect) ---
-const FloatingImagesBackground = () => {
+// Optimized: Completely disabled on mobile for performance
+const FloatingImagesBackground = ({ isMobile }) => {
+    // Skip rendering entirely on mobile
+    if (isMobile) return null;
+
     // Define images
     const allImages = [
-        { src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop", x: "10%", y: "10%", size: "w-32 md:w-48" }, // Coding
-        { src: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=2070&auto=format&fit=crop", x: "80%", y: "20%", size: "w-40 md:w-56" }, // Server
-        { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop", x: "5%", y: "60%", size: "w-28 md:w-40" }, // Chip
-        { src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop", x: "85%", y: "70%", size: "w-36 md:w-52" }, // Abstract Tech
-        { src: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?q=80&w=2070&auto=format&fit=crop", x: "50%", y: "40%", size: "w-24 md:w-32" }, // Network
+        { src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop", x: "10%", y: "10%", size: "w-48" },
+        { src: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=2070&auto=format&fit=crop", x: "80%", y: "20%", size: "w-56" },
+        { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop", x: "5%", y: "60%", size: "w-40" },
     ];
-
-    // OPTIMIZATION: Show fewer images on mobile to reduce layer count/compositing
-    // We can use CSS to hide them, or simple logic. CSS is better for SSR/hydration consistency.
-    // Using 'hidden md:block' on the last 3 images.
 
     return (
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -148,22 +146,19 @@ const FloatingImagesBackground = () => {
                     key={index}
                     initial={{ opacity: 0, y: 50 }}
                     animate={{
-                        opacity: [0.2, 0.4, 0.2],
-                        y: [0, -20, 0],
-                        x: [0, 10, 0],
-                        rotate: [0, 5, -5, 0]
+                        opacity: [0.15, 0.3, 0.15],
+                        y: [0, -15, 0],
                     }}
                     transition={{
-                        duration: 8 + index * 2,
+                        duration: 10 + index * 3,
                         repeat: Infinity,
                         ease: "easeInOut",
                         delay: index * 0.5
                     }}
-                    style={{ left: img.x, top: img.y }}
-                    // OPTIMIZATION: Hidden on mobile for index > 1 (keep only first 2)
-                    className={`absolute ${img.size} ${index > 1 ? 'hidden md:block' : 'block'} aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/5 opacity-30 filter blur-[1px]`}
+                    style={{ left: img.x, top: img.y, willChange: 'transform, opacity' }}
+                    className={`absolute ${img.size} aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/5 opacity-20`}
                 >
-                    <img src={img.src} alt="Background decoration" className="w-full h-full object-cover" />
+                    <img src={img.src} alt="" loading="lazy" className="w-full h-full object-cover" />
                 </motion.div>
             ))}
         </div>
@@ -171,7 +166,7 @@ const FloatingImagesBackground = () => {
 };
 
 // --- LOADING SCREEN COMPONENT ---
-// Re-added isMobile prop processing for density
+// Optimized: Disable SparklesCore on mobile for performance
 const LoadingScreen = ({ isMobile }) => {
     return (
         <motion.div
@@ -179,18 +174,25 @@ const LoadingScreen = ({ isMobile }) => {
             exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
             className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black overflow-hidden"
         >
-            <div className="w-full absolute inset-0 h-screen">
-                <SparklesCore
-                    id="tsparticlesfullpage"
-                    background="transparent"
-                    minSize={0.6}
-                    maxSize={1.4}
-                    // OPTIMIZATION: Reduce density on mobile
-                    particleDensity={isMobile ? 30 : 50}
-                    className="w-full h-full"
-                    particleColor="#FFFFFF"
-                />
-            </div>
+            {/* Only render particles on desktop */}
+            {!isMobile && (
+                <div className="w-full absolute inset-0 h-screen">
+                    <SparklesCore
+                        id="tsparticlesfullpage"
+                        background="transparent"
+                        minSize={0.6}
+                        maxSize={1.4}
+                        particleDensity={40}
+                        className="w-full h-full"
+                        particleColor="#FFFFFF"
+                    />
+                </div>
+            )}
+
+            {/* Simple gradient effect for mobile */}
+            {isMobile && (
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-black to-purple-900/20" />
+            )}
 
             <div className="relative z-20 flex flex-col items-center">
                 <motion.h1
@@ -435,8 +437,8 @@ export default function App() {
         setIsMobileMenuOpen(false);
     }
 
-    // OPTIMIZATION: Reduce blur on mobile for simpler rendering
-    const blurClass = "backdrop-blur-md md:backdrop-blur-xl";
+    // OPTIMIZATION: Reduce or remove blur on mobile for better GPU performance
+    const blurClass = isMobile ? "backdrop-blur-[2px]" : "backdrop-blur-xl";
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white font-sans selection:bg-blue-500/30 selection:text-blue-200 overflow-x-hidden">
@@ -492,24 +494,34 @@ export default function App() {
 
             {/* Main Content (Only visible after loading starts fading or exiting) */}
             <div className={`${loading ? 'fixed inset-0 overflow-hidden' : ''}`}>
-                {/* Dynamic Background */}
+                {/* Dynamic Background - Optimized: Static on mobile, animated on desktop */}
                 <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
-                    <motion.div
-                        animate={{ x: [0, 30, -20, 0], y: [0, -50, 20, 0], scale: [1, 1.1, 0.9, 1] }}
-                        // OPTIMIZATION: Slower duration on mobile
-                        transition={{ duration: isMobile ? 15 : 10, repeat: Infinity, repeatType: "mirror" }}
-                        className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
-                    />
-                    <motion.div
-                        animate={{ x: [0, -40, 20, 0], y: [0, 40, -30, 0], scale: [1, 0.9, 1.1, 1] }}
-                        transition={{ duration: isMobile ? 18 : 12, repeat: Infinity, repeatType: "mirror", delay: 1 }}
-                        className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
-                    />
-                    <motion.div
-                        animate={{ x: [0, 50, -30, 0], y: [0, 30, -50, 0], scale: [1, 1.2, 0.8, 1] }}
-                        transition={{ duration: isMobile ? 22 : 15, repeat: Infinity, repeatType: "mirror", delay: 2 }}
-                        className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
-                    />
+                    {isMobile ? (
+                        // Static gradient background for mobile - no animations
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-pink-900/10" />
+                    ) : (
+                        // Animated blobs for desktop only
+                        <>
+                            <motion.div
+                                animate={{ x: [0, 30, -20, 0], y: [0, -50, 20, 0], scale: [1, 1.1, 0.9, 1] }}
+                                transition={{ duration: 10, repeat: Infinity, repeatType: "mirror" }}
+                                style={{ willChange: 'transform' }}
+                                className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
+                            />
+                            <motion.div
+                                animate={{ x: [0, -40, 20, 0], y: [0, 40, -30, 0], scale: [1, 0.9, 1.1, 1] }}
+                                transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", delay: 1 }}
+                                style={{ willChange: 'transform' }}
+                                className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
+                            />
+                            <motion.div
+                                animate={{ x: [0, 50, -30, 0], y: [0, 30, -50, 0], scale: [1, 1.2, 0.8, 1] }}
+                                transition={{ duration: 15, repeat: Infinity, repeatType: "mirror", delay: 2 }}
+                                style={{ willChange: 'transform' }}
+                                className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30"
+                            />
+                        </>
+                    )}
                 </div>
 
                 {/* Navigation */}
@@ -589,7 +601,7 @@ export default function App() {
                         className="relative grid grid-cols-1 md:grid-cols-4 grid-rows-auto md:grid-rows-2 gap-4 mb-24 scroll-mt-32"
                     >
                         {/* FLOATING PARALLAX IMAGES BACKGROUND */}
-                        <FloatingImagesBackground />
+                        <FloatingImagesBackground isMobile={isMobile} />
 
                         {/* Hero Title Box */}
                         <motion.div
@@ -625,15 +637,15 @@ export default function App() {
                         {/* Profile Photo Box */}
                         <motion.div
                             variants={fadeInUp}
-                            // OPTIMIZATION: Use Switch blur
                             className={`md:col-span-1 md:row-span-2 bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] overflow-hidden relative group z-10`}
                         >
                             <motion.img
-                                whileHover={{ scale: 1.1 }}
+                                whileHover={isMobile ? undefined : { scale: 1.1 }}
                                 transition={{ duration: 0.5 }}
                                 src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=80&w=1769&auto=format&fit=crop"
                                 alt="Profile Workplace"
-                                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
+                                loading="lazy"
+                                className="w-full h-full object-cover grayscale md:group-hover:grayscale-0 transition-all duration-700"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
                                 <p className="text-sm text-neutral-300">Specialization</p>
@@ -644,8 +656,7 @@ export default function App() {
                         {/* Stat Box */}
                         <motion.div
                             variants={fadeInUp}
-                            whileHover={{ y: -5, boxShadow: "0 10px 30px -10px rgba(34, 197, 94, 0.2)" }}
-                            // OPTIMIZATION: Use Switch blur
+                            whileHover={isMobile ? undefined : { y: -5, boxShadow: "0 10px 30px -10px rgba(34, 197, 94, 0.2)" }}
                             className={`bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center z-10`}
                         >
                             <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mb-3">
@@ -658,8 +669,7 @@ export default function App() {
                         {/* Social Links Box */}
                         <motion.div
                             variants={fadeInUp}
-                            whileHover={{ y: -5 }}
-                            // OPTIMIZATION: Use Switch blur
+                            whileHover={isMobile ? undefined : { y: -5 }}
                             className={`bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-6 flex items-center justify-around z-10`}
                         >
                             {[
@@ -720,8 +730,8 @@ export default function App() {
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    whileHover={{ scale: 1.02 }}
-                                    // Switch blur for performance
+                                    // Disable hover scale on mobile for performance
+                                    whileHover={isMobile ? undefined : { scale: 1.02 }}
                                     className={`${project.span} bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer hover:border-white/20 transition-colors z-0`}
                                 >
                                     <motion.div
@@ -732,9 +742,11 @@ export default function App() {
                                             layoutId={`card-image-${project.id}`}
                                             src={project.image}
                                             alt={project.title}
+                                            loading="lazy"
                                             className="w-full h-full object-cover"
                                         />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        {/* Hide hover overlay on mobile */}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 md:group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center">
                                             <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium">View Details</span>
                                         </div>
                                     </motion.div>
