@@ -132,11 +132,11 @@ const FloatingImagesBackground = ({ isMobile }) => {
     // Skip rendering entirely on mobile
     if (isMobile) return null;
 
-    // Define images
+    // Define images with optimized sizes
     const allImages = [
-        { src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop", x: "10%", y: "10%", size: "w-48" },
-        { src: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=80&w=2070&auto=format&fit=crop", x: "80%", y: "20%", size: "w-56" },
-        { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop", x: "5%", y: "60%", size: "w-40" },
+        { src: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=60&w=400&auto=format&fit=crop", x: "10%", y: "10%", size: "w-48" },
+        { src: "https://images.unsplash.com/photo-1558494949-ef526b0042a0?q=60&w=400&auto=format&fit=crop", x: "80%", y: "20%", size: "w-56" },
+        { src: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=60&w=400&auto=format&fit=crop", x: "5%", y: "60%", size: "w-40" },
     ];
 
     return (
@@ -233,11 +233,16 @@ const LoadingScreen = ({ isMobile }) => {
 
 // --- EXISTING ANIMATION VARIANTS ---
 const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 60, filter: "blur(15px)", scale: 0.96 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: { duration: 0.6, ease: "easeOut" }
+        filter: "blur(0px)",
+        scale: 1,
+        transition: {
+            duration: 1.2,
+            ease: [0.16, 1, 0.3, 1]
+        }
     }
 };
 
@@ -246,7 +251,8 @@ const staggerContainer = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.2
+            staggerChildren: 0.12,
+            delayChildren: 0.2
         }
     }
 };
@@ -266,7 +272,7 @@ const PROJECTS = [
         id: "proj1",
         title: "Network Troubleshooting Guide",
         category: "Documentation",
-        image: "https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=1887&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=75&w=800&auto=format&fit=crop",
         description: "An interactive, step-by-step documentation platform designed to help TJKT students diagnose network issues systematically.",
         challenge: "Students struggled to visualize the invisible flow of data packets during troubleshooting, leading to confusion and ineffective diagnosis.",
         solution: "Built a reproducible guide using interactive diagrams and decision trees that visualize the flow of data.",
@@ -278,7 +284,7 @@ const PROJECTS = [
         id: "proj2",
         title: "Local Micro SaaS Analysis",
         category: "Consulting",
-        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2015&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=75&w=800&auto=format&fit=crop",
         description: "A comprehensive market research and architectural blueprint for a SaaS product tailored to the Indonesian MSME market.",
         challenge: "Global SaaS solutions are often too expensive or complex for local small businesses, creating a barrier to entry.",
         solution: "Designed a workflow architecture that adapts global AI trends for local needs using affordable APIs and familiar interfaces.",
@@ -290,7 +296,7 @@ const PROJECTS = [
         id: "proj3",
         title: "Prompt Engineering for Education",
         category: "UX & AI Optimization",
-        image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=80&w=2070&auto=format&fit=crop",
+        image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?q=75&w=1200&auto=format&fit=crop",
         description: "A system of optimized AI prompts to generate personalized teaching materials for vocational students.",
         challenge: "Generic AI outputs often lack the specific context needed for vocational (SMK) technical training.",
         solution: "Developed a framework of 'Persona-Context-Task' prompts that output consistent, high-quality lesson plans and quizzes.",
@@ -333,7 +339,7 @@ export default function App() {
         // Simulate loading time
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 3500); // 3.5 seconds loading
+        }, 1200); // Optimized: Reduced from 3.5s to 1.2s
 
         return () => clearTimeout(timer);
     }, []);
@@ -630,20 +636,40 @@ export default function App() {
                             <div className="relative z-20">
                                 <motion.div
                                     initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 4 }}
+                                    animate={!loading ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                                    transition={{ delay: 0.4, duration: 0.8 }}
                                     className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400 border border-blue-500/20 mb-8"
                                 >
                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                                     Available for work
                                 </motion.div>
                                 <h1 className="text-4xl md:text-5xl font-bold leading-[1.1] mb-6 tracking-tighter">
-                                    Simplifying <span className="text-neutral-500">Technical Concepts,</span> <br />
-                                    <span className="text-gradient">Building Global Solutions.</span>
+                                    <motion.span
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={!loading ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                                        transition={{ delay: 0.6, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                        className="inline-block"
+                                    >
+                                        Simplifying <span className="text-neutral-500">Technical Concepts,</span>
+                                    </motion.span>
+                                    <br />
+                                    <motion.span
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={!loading ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                                        transition={{ delay: 0.8, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                                        className="text-gradient inline-block"
+                                    >
+                                        Building Global Solutions.
+                                    </motion.span>
                                 </h1>
-                                <p className="text-neutral-400 text-lg md:text-xl leading-relaxed max-w-md font-light">
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={!loading ? { opacity: 1 } : { opacity: 0 }}
+                                    transition={{ delay: 1.2, duration: 1 }}
+                                    className="text-neutral-400 text-lg md:text-xl leading-relaxed max-w-md font-light"
+                                >
                                     Network Engineering Educator & Technical Documentation Specialist crafting systematic digital experiences.
-                                </p>
+                                </motion.p>
                             </div>
                             <div className="mt-12 flex items-center gap-6">
                                 <motion.a
@@ -667,9 +693,11 @@ export default function App() {
                             <motion.img
                                 whileHover={isMobile ? undefined : { scale: 1.05 }}
                                 transition={{ duration: 0.8 }}
-                                src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=80&w=1769&auto=format&fit=crop"
+                                src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=70&w=800&auto=format&fit=crop"
                                 alt="Profile Workplace"
-                                loading="lazy"
+                                loading="eager"
+                                fetchpriority="high"
+                                decoding="async"
                                 className="w-full h-full object-cover grayscale opacity-60 md:group-hover:grayscale-0 md:group-hover:opacity-100 transition-all duration-1000"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-8">
@@ -717,9 +745,9 @@ export default function App() {
 
                     {/* Tech Stack Marquee */}
                     <motion.section
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        viewport={{ once: true }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={!loading ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                        transition={{ delay: 1.5, duration: 1 }}
                         className="mb-32"
                     >
                         <p className="text-center text-[10px] font-bold text-neutral-500 mb-10 uppercase tracking-[0.4em]">Core Competencies</p>
