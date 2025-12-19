@@ -595,8 +595,8 @@ export default function App() {
                             >
                                 <div className="flex flex-col gap-6 text-center text-xl font-semibold text-neutral-300">
                                     <a href="#about" onClick={closeMobileMenu} className="hover:text-white transition-colors">Profile</a>
-                                    <a href="#projects" onClick={closeMobileMenu} className="hover:text-white transition-colors">Portfolio</a>
-                                    <a href="#services" onClick={closeMobileMenu} className="hover:text-white transition-colors">Expertise</a>
+                                    <a href="#portfolio" onClick={closeMobileMenu} className="hover:text-white transition-colors">Portfolio</a>
+                                    <a href="#expertise" onClick={closeMobileMenu} className="hover:text-white transition-colors">Expertise</a>
                                     <a href="#contact" onClick={closeMobileMenu} className="bg-white text-black px-8 py-4 rounded-[1.5rem] font-bold mt-4 shadow-xl">Contact Me</a>
                                 </div>
                             </motion.div>
@@ -648,7 +648,7 @@ export default function App() {
                             <div className="mt-12 flex items-center gap-6">
                                 <motion.a
                                     whileHover={{ x: 10, color: "#60a5fa" }}
-                                    href="#projects"
+                                    href="#portfolio"
                                     className="inline-flex items-center gap-3 text-white font-semibold text-lg group transition-all"
                                 >
                                     Explore my work
@@ -924,7 +924,7 @@ export default function App() {
                         )}
                     </AnimatePresence>
 
-                    <section id="services" className="mb-24 scroll-mt-32">
+                    <section id="expertise" className="mb-24 scroll-mt-32">
                         <div className="text-center mb-16">
                             <motion.h2
                                 initial={{ opacity: 0, y: 20 }}
