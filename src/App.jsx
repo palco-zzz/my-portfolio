@@ -174,7 +174,6 @@ const LoadingScreen = ({ isMobile }) => {
             exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
             className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black overflow-hidden"
         >
-            {/* Only render particles on desktop */}
             {!isMobile && (
                 <div className="w-full absolute inset-0 h-screen">
                     <SparklesCore
@@ -189,34 +188,42 @@ const LoadingScreen = ({ isMobile }) => {
                 </div>
             )}
 
-            {/* Simple gradient effect for mobile */}
             {isMobile && (
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-black to-purple-900/20" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-black to-purple-900/10" />
             )}
 
             <div className="relative z-20 flex flex-col items-center">
-                <motion.h1
-                    initial={{ scale: 0.5, opacity: 0, filter: "blur(10px)" }}
+                <motion.div
+                    initial={{ scale: 0.8, opacity: 0, filter: "blur(20px)" }}
                     animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="md:text-7xl text-5xl lg:text-9xl font-bold text-center text-white relative tracking-tight"
+                    transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col items-center"
                 >
-                    zxenxi
-                </motion.h1>
+                    <h1 className="md:text-8xl text-6xl font-bold text-center text-white tracking-tighter mb-8">
+                        zxenxi.
+                    </h1>
 
-                {/* Gradients for text effect */}
-                <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-[2px] w-3/4 blur-sm" />
-                <div className="absolute inset-x-20 top-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent h-px w-3/4" />
-                <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-[5px] w-1/4 blur-sm" />
-                <div className="absolute inset-x-60 top-0 bg-gradient-to-r from-transparent via-sky-500 to-transparent h-px w-1/4" />
+                    <div className="w-48 h-[1px] bg-white/5 relative overflow-hidden rounded-full">
+                        <motion.div
+                            initial={{ x: "-100%" }}
+                            animate={{ x: "100%" }}
+                            transition={{
+                                repeat: Infinity,
+                                duration: 1.5,
+                                ease: "easeInOut"
+                            }}
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500 to-transparent w-full h-full"
+                        />
+                    </div>
+                </motion.div>
 
                 <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1, duration: 0.5 }}
-                    className="mt-4 text-neutral-400 text-sm md:text-base font-light tracking-widest uppercase"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 1 }}
+                    className="mt-6 text-neutral-500 text-[10px] font-bold tracking-[0.4em] uppercase"
                 >
-                    Loading Portfolio
+                    Initializing Core
                 </motion.p>
             </div>
         </motion.div>
@@ -529,41 +536,51 @@ export default function App() {
                     initial={{ y: -100, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.8, type: "spring", delay: 3.5 }}
-                    className="fixed top-0 w-full z-50 px-4 md:px-6 py-4"
+                    className="fixed top-0 w-full z-50 px-4 md:px-6 py-6"
                 >
-                    {/* OPTIMIZATION: Switch blurs */}
-                    <div className={`max-w-5xl mx-auto bg-[#171717]/60 ${blurClass} border border-white/10 rounded-full px-6 py-3 flex justify-between items-center relative z-50`}>
-                        <a href="#" className="font-bold text-xl tracking-tight flex items-center gap-2">
-                            <div className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center">
-                                <Terminal className="w-4 h-4" />
-                            </div>
-                            <span>zxenxi.</span>
+                    <div className={`max-w-5xl mx-auto glass-morphism inner-glow rounded-full px-6 py-3 flex justify-between items-center relative z-50 shadow-2xl`}>
+                        <a href="#" className="font-bold text-xl tracking-tighter flex items-center gap-2 group">
+                            <motion.div
+                                whileHover={{ rotate: 360 }}
+                                transition={{ duration: 0.5 }}
+                                className="w-9 h-9 bg-white text-black rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+                            >
+                                <Terminal className="w-5 h-5" />
+                            </motion.div>
+                            <span className="bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent group-hover:from-blue-400 group-hover:to-purple-400 transition-all duration-300">zxenxi.</span>
                         </a>
 
                         {/* Desktop Menu */}
-                        <div className="hidden md:flex gap-8 text-sm font-medium text-neutral-400">
-                            <a href="#about" className="hover:text-white transition-colors">Profile</a>
-                            <a href="#projects" className="hover:text-white transition-colors">Portfolio</a>
-                            <a href="#services" className="hover:text-white transition-colors">Expertise</a>
+                        <div className="hidden md:flex gap-10 text-[13px] font-medium tracking-wide uppercase text-neutral-400">
+                            {['Profile', 'Portfolio', 'Expertise'].map((item) => (
+                                <a
+                                    key={item}
+                                    href={`#${item.toLowerCase() === 'profile' ? 'about' : item.toLowerCase()}`}
+                                    className="hover:text-white transition-all duration-300 relative group"
+                                >
+                                    {item}
+                                    <span className="absolute -bottom-1 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full" />
+                                </a>
+                            ))}
                         </div>
 
                         <div className="hidden md:block">
                             <motion.a
-                                whileHover={{ scale: 1.05 }}
+                                whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(255,255,255,0.3)" }}
                                 whileTap={{ scale: 0.95 }}
                                 href="#contact"
-                                className="bg-white text-black px-5 py-2 rounded-full text-sm font-semibold hover:bg-neutral-200 transition-colors"
+                                className="bg-white text-black px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300"
                             >
-                                Contact
+                                Get in touch
                             </motion.a>
                         </div>
 
                         {/* Mobile Menu Toggle */}
                         <button
-                            className="md:hidden text-white p-2"
+                            className="md:hidden text-white p-2 hover:bg-white/5 rounded-full transition-colors"
                             onClick={toggleMobileMenu}
                         >
-                            {isMobileMenuOpen ? <X /> : <Menu />}
+                            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
 
@@ -574,14 +591,13 @@ export default function App() {
                                 initial={{ opacity: 0, y: -20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                                // OPTIMIZATION: Reduced blur
-                                className="absolute top-20 left-4 right-4 bg-[#171717]/90 backdrop-blur-xl border border-white/10 rounded-[2rem] p-6 md:hidden z-40 flex flex-col gap-6 shadow-2xl"
+                                className="absolute top-24 left-4 right-4 glass-morphism rounded-[2.5rem] p-8 md:hidden z-40 flex flex-col gap-8 shadow-2xl overflow-hidden"
                             >
-                                <div className="flex flex-col gap-4 text-center text-lg font-medium text-neutral-300">
-                                    <a href="#about" onClick={closeMobileMenu} className="hover:text-white transition-colors py-2 border-b border-white/5">Profile</a>
-                                    <a href="#projects" onClick={closeMobileMenu} className="hover:text-white transition-colors py-2 border-b border-white/5">Portfolio</a>
-                                    <a href="#services" onClick={closeMobileMenu} className="hover:text-white transition-colors py-2 border-b border-white/5">Expertise</a>
-                                    <a href="#contact" onClick={closeMobileMenu} className="bg-white text-black px-5 py-3 rounded-full font-bold mt-2 hover:bg-neutral-200 transition-colors">Contact Me</a>
+                                <div className="flex flex-col gap-6 text-center text-xl font-semibold text-neutral-300">
+                                    <a href="#about" onClick={closeMobileMenu} className="hover:text-white transition-colors">Profile</a>
+                                    <a href="#projects" onClick={closeMobileMenu} className="hover:text-white transition-colors">Portfolio</a>
+                                    <a href="#services" onClick={closeMobileMenu} className="hover:text-white transition-colors">Expertise</a>
+                                    <a href="#contact" onClick={closeMobileMenu} className="bg-white text-black px-8 py-4 rounded-[1.5rem] font-bold mt-4 shadow-xl">Contact Me</a>
                                 </div>
                             </motion.div>
                         )}
@@ -606,30 +622,39 @@ export default function App() {
                         {/* Hero Title Box */}
                         <motion.div
                             variants={fadeInUp}
-                            // OPTIMIZATION: Use Switch blur
-                            className={`md:col-span-2 md:row-span-2 bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-8 flex flex-col justify-between min-h-[400px] relative overflow-hidden group z-10`}
+                            className={`md:col-span-2 md:row-span-2 glass-morphism inner-glow rounded-[2.5rem] p-10 flex flex-col justify-between min-h-[450px] relative overflow-hidden group z-10 shadow-2xl`}
                         >
-                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
-                                <Cpu className="w-32 h-32" />
+                            <div className="absolute -top-10 -right-10 opacity-5 group-hover:opacity-10 transition-opacity duration-700 rotate-12">
+                                <Cpu className="w-64 h-64" />
                             </div>
-                            <div>
-                                <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-xs font-medium text-blue-300 border border-white/5 mb-4">
-                                    👋 Hi, I'm zxenxi
-                                </span>
-                                <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
-                                    Simplifying Technical Concepts, <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Building Global Solutions.</span>
+                            <div className="relative z-20">
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 4 }}
+                                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-400 border border-blue-500/20 mb-8"
+                                >
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                                    Available for work
+                                </motion.div>
+                                <h1 className="text-4xl md:text-5xl font-bold leading-[1.1] mb-6 tracking-tighter">
+                                    Simplifying <span className="text-neutral-500">Technical Concepts,</span> <br />
+                                    <span className="text-gradient">Building Global Solutions.</span>
                                 </h1>
-                                <p className="text-neutral-400 text-base md:text-lg leading-relaxed">
-                                    Network Engineering Educator (TJKT) & Technical Documentation Specialist focusing on Web Consulting, Micro SaaS Ideation, and UX Optimization.
+                                <p className="text-neutral-400 text-lg md:text-xl leading-relaxed max-w-md font-light">
+                                    Network Engineering Educator & Technical Documentation Specialist crafting systematic digital experiences.
                                 </p>
                             </div>
-                            <div className="mt-8">
+                            <div className="mt-12 flex items-center gap-6">
                                 <motion.a
-                                    whileHover={{ x: 5 }}
+                                    whileHover={{ x: 10, color: "#60a5fa" }}
                                     href="#projects"
-                                    className="inline-flex items-center gap-2 text-white font-medium transition-all"
+                                    className="inline-flex items-center gap-3 text-white font-semibold text-lg group transition-all"
                                 >
-                                    View Projects <ArrowRight className="w-4 h-4" />
+                                    Explore my work
+                                    <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:border-blue-500/50 transition-colors">
+                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    </div>
                                 </motion.a>
                             </div>
                         </motion.div>
@@ -637,53 +662,54 @@ export default function App() {
                         {/* Profile Photo Box */}
                         <motion.div
                             variants={fadeInUp}
-                            className={`md:col-span-1 md:row-span-2 bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] overflow-hidden relative group z-10`}
+                            className={`md:col-span-1 md:row-span-2 glass-morphism inner-glow rounded-[2.5rem] overflow-hidden relative group z-10 shadow-2xl`}
                         >
                             <motion.img
-                                whileHover={isMobile ? undefined : { scale: 1.1 }}
-                                transition={{ duration: 0.5 }}
+                                whileHover={isMobile ? undefined : { scale: 1.05 }}
+                                transition={{ duration: 0.8 }}
                                 src="https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?q=80&w=1769&auto=format&fit=crop"
                                 alt="Profile Workplace"
                                 loading="lazy"
-                                className="w-full h-full object-cover grayscale md:group-hover:grayscale-0 transition-all duration-700"
+                                className="w-full h-full object-cover grayscale opacity-60 md:group-hover:grayscale-0 md:group-hover:opacity-100 transition-all duration-1000"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
-                                <p className="text-sm text-neutral-300">Specialization</p>
-                                <p className="font-semibold text-white">Full-time IT & Education</p>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent flex flex-col justify-end p-8">
+                                <p className="text-xs text-neutral-500 uppercase tracking-widest font-bold mb-1">Specialization</p>
+                                <p className="text-xl font-bold text-white tracking-tight">IT Educator & Engineer</p>
                             </div>
                         </motion.div>
 
                         {/* Stat Box */}
                         <motion.div
                             variants={fadeInUp}
-                            whileHover={isMobile ? undefined : { y: -5, boxShadow: "0 10px 30px -10px rgba(34, 197, 94, 0.2)" }}
-                            className={`bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-6 flex flex-col justify-center items-center text-center z-10`}
+                            whileHover={isMobile ? undefined : { y: -5, boxShadow: "0 20px 40px -10px rgba(34, 197, 94, 0.2)" }}
+                            className={`glass-morphism inner-glow rounded-[2.5rem] p-8 flex flex-col justify-center items-center text-center z-10 shadow-2xl transition-all duration-500`}
                         >
-                            <div className="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mb-3">
-                                <Languages className="w-6 h-6" />
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/5 text-green-400 flex items-center justify-center mb-4 inner-glow border border-green-500/10">
+                                <Languages className="w-8 h-8" />
                             </div>
-                            <h3 className="text-xl font-bold">Bilingual</h3>
-                            <p className="text-xs text-neutral-400 uppercase tracking-wider mt-1">Indonesian & English</p>
+                            <h3 className="text-2xl font-bold tracking-tighter">Bilingual</h3>
+                            <p className="text-[10px] text-neutral-500 font-bold uppercase tracking-[0.2em] mt-2">IDN & ENG Proficiency</p>
                         </motion.div>
 
                         {/* Social Links Box */}
                         <motion.div
                             variants={fadeInUp}
                             whileHover={isMobile ? undefined : { y: -5 }}
-                            className={`bg-[#171717]/80 ${blurClass} border border-white/10 rounded-[2rem] p-6 flex items-center justify-around z-10`}
+                            className={`glass-morphism inner-glow rounded-[2.5rem] p-8 flex items-center justify-around z-10 shadow-2xl transition-all duration-500`}
                         >
                             {[
-                                { Icon: Linkedin, link: "#" },
-                                { Icon: Github, link: "#" },
-                                { Icon: Mail, link: "#" }
+                                { Icon: Linkedin, link: "#", color: "hover:text-blue-400" },
+                                { Icon: Github, link: "#", color: "hover:text-purple-400" },
+                                { Icon: Mail, link: "#", color: "hover:text-pink-400" }
                             ].map((item, index) => (
                                 <motion.a
                                     key={index}
-                                    whileHover={{ scale: 1.2, rotate: 5, backgroundColor: "rgba(255,255,255,0.2)" }}
+                                    whileHover={{ scale: 1.15, rotate: index % 2 === 0 ? 5 : -5 }}
                                     href={item.link}
-                                    className="p-3 bg-white/5 rounded-full transition-colors text-white"
+                                    className={`relative p-4 bg-white/5 rounded-2xl transition-all duration-300 text-neutral-400 ${item.color} group shadow-lg`}
                                 >
-                                    <item.Icon className="w-6 h-6" />
+                                    <item.Icon className="w-7 h-7" />
+                                    <div className="absolute inset-0 rounded-2xl bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </motion.a>
                             ))}
                         </motion.div>
@@ -692,51 +718,61 @@ export default function App() {
                     {/* Tech Stack Marquee */}
                     <motion.section
                         initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 0.8 }}
+                        whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
-                        className="mb-24"
+                        className="mb-32"
                     >
-                        <p className="text-center text-sm text-neutral-500 mb-6 uppercase tracking-widest">Competencies & Tools</p>
-                        <div className="flex flex-wrap justify-center gap-8 md:gap-12 grayscale hover:grayscale-0 transition-all duration-500">
-                            <div className="flex items-center gap-2 font-semibold text-lg"><Network /> Networking</div>
-                            <div className="flex items-center gap-2 font-semibold text-lg"><FileText /> Documentation</div>
-                            <div className="flex items-center gap-2 font-semibold text-lg"><LayoutTemplate /> Micro SaaS</div>
-                            <div className="flex items-center gap-2 font-semibold text-lg"><SearchCheck /> UX & Prompt</div>
-                            <div className="flex items-center gap-2 font-semibold text-lg"><Code2 /> Web Dev</div>
+                        <p className="text-center text-[10px] font-bold text-neutral-500 mb-10 uppercase tracking-[0.4em]">Core Competencies</p>
+                        <div className="flex flex-wrap justify-center gap-x-12 gap-y-8 opacity-40 hover:opacity-100 transition-opacity duration-700">
+                            {[
+                                { Icon: Network, label: "Networking" },
+                                { Icon: FileText, label: "Documentation" },
+                                { Icon: LayoutTemplate, label: "Micro SaaS" },
+                                { Icon: SearchCheck, label: "UX & Prompt" },
+                                { Icon: Code2, label: "Web Dev" }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-3 font-bold text-sm tracking-tight group hover:text-white transition-colors cursor-default">
+                                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                                        <item.Icon className="w-4 h-4" />
+                                    </div>
+                                    {item.label}
+                                </div>
+                            ))}
                         </div>
                     </motion.section>
 
-                    {/* Projects Section - Renovated for Expansion */}
-                    <section id="projects" className="mb-24 scroll-mt-32">
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true, margin: "-100px" }}
-                            variants={fadeInUp}
-                            className="flex flex-col md:flex-row justify-between items-end mb-10 gap-4"
-                        >
-                            <div>
-                                <h2 className="text-3xl font-bold mb-2">Case Studies & Projects</h2>
-                                <p className="text-neutral-400">A blend of network engineering, technical education, and web development.</p>
+                    <section id="portfolio" className="mb-32 scroll-mt-32">
+                        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                            <div className="max-w-xl">
+                                <motion.h2
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    className="text-4xl md:text-5xl font-bold mb-4 tracking-tighter"
+                                >
+                                    Selected <span className="text-gradient">Case Studies</span>
+                                </motion.h2>
+                                <p className="text-neutral-500 font-light leading-relaxed">
+                                    A curated selection of projects where technical infrastructure meets strategic product design.
+                                </p>
                             </div>
-                        </motion.div>
+                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
                             {PROJECTS.map((project) => (
                                 <motion.div
                                     layoutId={`card-container-${project.id}`}
                                     key={project.id}
                                     onClick={() => setSelectedId(project.id)}
-                                    initial={{ opacity: 0, y: 20 }}
+                                    initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    // Disable hover scale on mobile for performance
-                                    whileHover={isMobile ? undefined : { scale: 1.02 }}
-                                    className={`${project.span} bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[2rem] p-3 group cursor-pointer hover:border-white/20 transition-colors z-0`}
+                                    whileHover={isMobile ? undefined : { y: -10 }}
+                                    className={`${project.span} glass-morphism inner-glow rounded-[2.5rem] p-4 group cursor-pointer transition-all duration-500 shadow-xl border-white/5 hover:border-white/10 z-0`}
                                 >
                                     <motion.div
                                         layoutId={`card-image-container-${project.id}`}
-                                        className="rounded-[1.5rem] overflow-hidden aspect-[4/3] md:aspect-video mb-4 relative"
+                                        className="rounded-[1.8rem] overflow-hidden aspect-[4/3] md:aspect-video mb-6 relative shadow-2xl"
                                     >
                                         <motion.img
                                             layoutId={`card-image-${project.id}`}
@@ -778,21 +814,21 @@ export default function App() {
                                     <motion.div
                                         layoutId={`card-container-${project.id}`}
                                         key={project.id}
-                                        className="fixed inset-0 z-50 overflow-y-auto bg-[#1a1a1a] md:m-8 md:rounded-[2rem] border border-white/10 flex flex-col"
+                                        className="fixed inset-0 z-50 overflow-y-auto bg-black md:m-8 md:rounded-[3rem] border border-white/10 flex flex-col shadow-2xl"
                                     >
                                         {/* Close Button */}
                                         <button
                                             onClick={(e) => { e.stopPropagation(); setSelectedId(null); }}
-                                            className="absolute top-6 right-6 z-50 p-2 bg-black/50 backdrop-blur-md rounded-full text-white hover:bg-white/20 transition-colors"
+                                            className="absolute top-8 right-8 z-50 p-3 bg-black/50 backdrop-blur-xl rounded-full text-white hover:bg-white/20 transition-all border border-white/10"
                                         >
                                             <X className="w-6 h-6" />
                                         </button>
 
-                                        <div className="max-w-5xl mx-auto w-full bg-[#1a1a1a] min-h-full">
+                                        <div className="max-w-5xl mx-auto w-full bg-black min-h-full">
                                             {/* Hero Image */}
                                             <motion.div
                                                 layoutId={`card-image-container-${project.id}`}
-                                                className="w-full h-[40vh] md:h-[50vh] relative overflow-hidden"
+                                                className="w-full h-[50vh] md:h-[60vh] relative overflow-hidden"
                                             >
                                                 <motion.img
                                                     layoutId={`card-image-${project.id}`}
@@ -800,71 +836,84 @@ export default function App() {
                                                     alt={project.title}
                                                     className="w-full h-full object-cover"
                                                 />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] to-transparent" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                                             </motion.div>
 
-                                            <div className="p-8 md:p-12 -mt-20 relative z-10">
-                                                <motion.div layoutId={`card-category-${project.id}`} className="inline-block px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-500/10">
+                                            <div className="p-10 md:p-20 -mt-32 relative z-10">
+                                                <motion.div
+                                                    layoutId={`card-category-${project.id}`}
+                                                    className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-6 border border-blue-500/20"
+                                                >
                                                     {project.category}
                                                 </motion.div>
 
-                                                <motion.h3 layoutId={`card-title-${project.id}`} className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+                                                <motion.h3
+                                                    layoutId={`card-title-${project.id}`}
+                                                    className="text-5xl md:text-7xl font-bold mb-12 leading-[0.95] tracking-tighter"
+                                                >
                                                     {project.title}
                                                 </motion.h3>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-                                                    <div className="space-y-8">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
+                                                    <div className="md:col-span-2 space-y-12">
                                                         <div>
-                                                            <h4 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                                                                <Lightbulb className="w-5 h-5 text-yellow-500" /> The Challenge
+                                                            <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-3 tracking-tight">
+                                                                <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+                                                                    <Lightbulb className="w-5 h-5" />
+                                                                </div>
+                                                                The Challenge
                                                             </h4>
-                                                            <p className="text-neutral-400 leading-relaxed">
+                                                            <p className="text-neutral-400 text-lg leading-relaxed font-light">
                                                                 {project.challenge}
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
-                                                                <Wrench className="w-5 h-5 text-green-500" /> The Solution
+                                                            <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-3 tracking-tight">
+                                                                <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center text-green-500">
+                                                                    <Wrench className="w-5 h-5" />
+                                                                </div>
+                                                                The Solution
                                                             </h4>
-                                                            <p className="text-neutral-400 leading-relaxed">
+                                                            <p className="text-neutral-400 text-lg leading-relaxed font-light">
                                                                 {project.solution}
                                                             </p>
                                                         </div>
                                                     </div>
 
-                                                    <div className="bg-white/5 rounded-2xl p-8 border border-white/5">
-                                                        <h4 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                                                            <Code2 className="w-5 h-5 text-purple-500" /> Key Features & Tech
+                                                    <div className="glass-morphism inner-glow rounded-[2.5rem] p-10 border-white/5 shadow-xl h-fit">
+                                                        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-neutral-500 mb-8 border-b border-white/5 pb-4">
+                                                            Project Stack
                                                         </h4>
 
-                                                        <div className="mb-6">
-                                                            <p className="text-xs text-neutral-500 uppercase tracking-widest mb-3">Key Features</p>
-                                                            <ul className="space-y-2">
+                                                        <div className="mb-10">
+                                                            <ul className="space-y-4">
                                                                 {project.features.map((feature, i) => (
-                                                                    <li key={i} className="flex items-center gap-2 text-sm text-neutral-300">
-                                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                                                    <li key={i} className="flex items-start gap-3 text-sm text-neutral-300 font-medium">
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5 shrink-0" />
                                                                         {feature}
                                                                     </li>
                                                                 ))}
                                                             </ul>
                                                         </div>
 
-                                                        <div>
-                                                            <p className="text-xs text-neutral-500 uppercase tracking-widest mb-3">Technology Stack</p>
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {project.tech.map((t, i) => (
-                                                                    <span key={i} className="px-3 py-1 bg-white/10 rounded-lg text-xs font-medium text-white border border-white/5">
-                                                                        {t}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {project.tech.map((t, i) => (
+                                                                <span key={i} className="px-3 py-1.5 bg-white/5 rounded-lg text-[11px] font-bold text-neutral-400 border border-white/5 uppercase tracking-wider">
+                                                                    {t}
+                                                                </span>
+                                                            ))}
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex justify-center pt-8 border-t border-white/5">
-                                                    <button onClick={() => setSelectedId(null)} className="text-neutral-400 hover:text-white transition-colors text-sm font-medium">
-                                                        Close Project Details
+                                                <div className="flex justify-center pt-20 border-t border-white/5">
+                                                    <button
+                                                        onClick={() => setSelectedId(null)}
+                                                        className="text-neutral-500 hover:text-white transition-all text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-4 group"
+                                                    >
+                                                        <span className="w-12 h-px bg-neutral-800 group-hover:bg-white transition-all" />
+                                                        Close Case Study
+                                                        <span className="w-12 h-px bg-neutral-800 group-hover:bg-white transition-all" />
                                                     </button>
                                                 </div>
                                             </div>
@@ -875,42 +924,45 @@ export default function App() {
                         )}
                     </AnimatePresence>
 
-                    {/* Services Section */}
                     <section id="services" className="mb-24 scroll-mt-32">
-                        <motion.h2
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="text-3xl font-bold mb-10 text-center"
-                        >
-                            Professional Services
-                        </motion.h2>
+                        <div className="text-center mb-16">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="text-4xl md:text-5xl font-bold mb-4 tracking-tighter"
+                            >
+                                Professional <span className="text-gradient">Expertise</span>
+                            </motion.h2>
+                            <p className="text-neutral-500 max-w-lg mx-auto font-light">
+                                Specialized in bridge-building between complex infra and user-friendly documentation.
+                            </p>
+                        </div>
                         <motion.div
                             variants={staggerContainer}
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                            className="grid grid-cols-1 md:grid-cols-3 gap-8"
                         >
                             {[
-                                { title: "Tech Docs", icon: Wrench, color: "text-blue-400", bg: "bg-blue-500/20", desc: "Creating reproducible technical documentation and systematic troubleshooting solutions." },
-                                { title: "Consulting", icon: Lightbulb, color: "text-purple-400", bg: "bg-purple-500/20", desc: "Digital ideation, workflow architecture, and web development consulting." },
-                                { title: "Adaptive Teaching", icon: Presentation, color: "text-pink-400", bg: "bg-pink-500/20", desc: "Creative approach using analogies and multimedia to explain complex concepts." }
+                                { title: "Technical Docs", icon: Wrench, color: "text-blue-400", bg: "bg-blue-500/10", desc: "Crafting systematic, interactive guides that turn complexity into clarity." },
+                                { title: "Web Strategy", icon: Lightbulb, color: "text-purple-400", bg: "bg-purple-500/10", desc: "Workflow architecture for Micro SaaS and digital product ideation." },
+                                { title: "IT Education", icon: Presentation, color: "text-pink-400", bg: "bg-pink-500/10", desc: "Simplifying hardware & network concepts through creative storytelling." }
                             ].map((service, index) => {
                                 const Icon = service.icon;
                                 return (
                                     <motion.div
                                         key={index}
                                         variants={fadeInUp}
-                                        whileHover={{ y: -10, backgroundColor: "rgba(255,255,255,0.08)" }}
-                                        // OPTIMIZATION: Use Switch blur
-                                        className={`bg-[#171717]/60 ${blurClass} border border-white/10 p-8 rounded-[2rem] transition-colors`}
+                                        whileHover={{ y: -15, scale: 1.02 }}
+                                        className={`glass-morphism inner-glow p-10 rounded-[2.5rem] transition-all duration-500 shadow-xl group hover:border-white/20`}
                                     >
-                                        <div className={`w-12 h-12 ${service.bg} rounded-2xl flex items-center justify-center ${service.color} mb-6`}>
-                                            <Icon className="w-6 h-6" />
+                                        <div className={`w-14 h-14 ${service.bg} rounded-2xl flex items-center justify-center ${service.color} mb-8 inner-glow border border-white/5 group-hover:scale-110 transition-transform duration-500`}>
+                                            <Icon className="w-7 h-7" />
                                         </div>
-                                        <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-                                        <p className="text-neutral-400 text-sm leading-relaxed">
+                                        <h3 className="text-2xl font-bold mb-4 tracking-tight">{service.title}</h3>
+                                        <p className="text-neutral-400 text-base leading-relaxed font-light">
                                             {service.desc}
                                         </p>
                                     </motion.div>
@@ -919,49 +971,67 @@ export default function App() {
                         </motion.div>
                     </section>
 
-                    {/* Contact/Footer */}
                     <motion.section
                         id="contact"
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        // OPTIMIZATION: Use Switch blur
-                        className={`bg-[#171717]/60 ${blurClass} border border-white/10 rounded-[3rem] p-10 md:p-16 text-center relative overflow-hidden scroll-mt-32`}
+                        className={`glass-morphism inner-glow rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden scroll-mt-32 shadow-[0_0_50px_rgba(0,0,0,0.5)] border-white/5`}
                     >
-                        <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-900/40 to-purple-900/40 opacity-50" />
+                        <div className="absolute inset-0 z-0 bg-gradient-to-br from-blue-600/20 via-purple-600/10 to-transparent opacity-60" />
+                        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/20 rounded-full blur-[100px]" />
+                        <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/20 rounded-full blur-[100px]" />
 
-                        <div className="relative z-10 max-w-2xl mx-auto">
-                            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready for Full-time IT Collaboration?</h2>
-                            <p className="text-lg text-neutral-300 mb-10">
-                                I am open to consulting opportunities, system development, or full-time technical roles. Let's discuss your needs.
+                        <div className="relative z-10 max-w-3xl mx-auto">
+                            <span className="inline-block px-4 py-1 rounded-full bg-white/5 text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-400 border border-white/10 mb-8">
+                                Let's build something
+                            </span>
+                            <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter leading-none">
+                                Ready for a <br /><span className="text-gradient">Technical Upgrade?</span>
+                            </h2>
+                            <p className="text-xl text-neutral-400 mb-12 font-light max-w-xl mx-auto">
+                                I specialize in infrastructure and documentation. Let's discuss how I can help your team scale.
                             </p>
-                            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                                 <motion.a
-                                    whileHover={{ scale: 1.05 }}
+                                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(255,255,255,0.2)" }}
                                     whileTap={{ scale: 0.95 }}
                                     href="mailto:email@example.com"
-                                    className="bg-white text-black px-8 py-4 rounded-full font-bold text-lg hover:bg-neutral-200 transition w-full sm:w-auto"
+                                    className="bg-white text-black px-10 py-5 rounded-2xl font-bold text-lg transition-all w-full sm:w-auto shadow-2xl"
                                 >
-                                    Contact via Email
+                                    Email zxenxi
                                 </motion.a>
                                 <motion.button
-                                    whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.1)" }}
+                                    whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.08)" }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="px-8 py-4 rounded-full font-bold text-lg border border-white/20 transition w-full sm:w-auto flex items-center justify-center gap-2"
-                                    onClick={() => alert('Contact copied!')}
+                                    className="px-10 py-5 rounded-2xl font-bold text-lg border border-white/10 glass-morphism transition-all w-full sm:w-auto flex items-center justify-center gap-2 group"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText('email@example.com');
+                                        alert('Email copied to clipboard!');
+                                    }}
                                 >
-                                    <Copy className="w-5 h-5" /> Copy Contact
+                                    <Copy className="w-5 h-5 group-hover:rotate-12 transition-transform" /> Copy Address
                                 </motion.button>
                             </div>
                         </div>
                     </motion.section>
 
-                    <footer className="mt-16 text-center text-neutral-500 text-sm">
-                        <p>&copy; 2025 zxenxi. All rights reserved.</p>
-                        <div className="flex justify-center gap-6 mt-4">
-                            <a href="#" className="hover:text-white transition">LinkedIn</a>
-                            <a href="#" className="hover:text-white transition">GitHub</a>
-                            <a href="#" className="hover:text-white transition">Blog</a>
+                    <footer className="mt-24 pb-12">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-8 border-t border-white/5 pt-12">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-white text-black rounded-lg flex items-center justify-center font-bold">Z</div>
+                                <span className="font-bold tracking-tighter text-lg">zxenxi.</span>
+                            </div>
+
+                            <div className="flex gap-10 text-sm font-medium text-neutral-500">
+                                {['LinkedIn', 'GitHub', 'Twitter'].map(social => (
+                                    <a key={social} href="#" className="hover:text-white transition-colors uppercase tracking-widest text-[10px]">{social}</a>
+                                ))}
+                            </div>
+
+                            <p className="text-neutral-600 text-[11px] font-medium tracking-wide uppercase">
+                                &copy; 2025 Created with focus
+                            </p>
                         </div>
                     </footer>
 

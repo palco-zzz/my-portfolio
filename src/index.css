@@ -1,20 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+    :root {
+        --background: 10 10 10;
+        --foreground: 255 255 255;
+        --card: 23 23 23;
+        --card-foreground: 255 255 255;
+        --border: 255 255 255;
+        --accent: 59 130 246;
+    }
+
     html {
         scroll-behavior: smooth;
-        background-color: #0a0a0a;
+        background-color: rgb(10, 10, 10);
         color: white;
     }
 
     body {
         margin: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
             'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
             sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        overflow-x: hidden;
+    }
+
+    /* Premium Grain Texture Overlay */
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+        opacity: 0.05;
+        pointer-events: none;
+        z-index: 9999;
+        filter: contrast(150%) brightness(100%);
+    }
+}
+
+@layer utilities {
+    .glass-morphism {
+        @apply bg-[#171717]/60 backdrop-blur-xl border border-white/10;
+    }
+
+    .premium-shadow {
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+    }
+
+    .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400;
+    }
+
+    .inner-glow {
+        box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
     }
 }
