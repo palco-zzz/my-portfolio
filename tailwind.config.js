@@ -22,5 +22,22 @@ module.exports = {
             }
         },
     },
-    plugins: [],
+    plugins: [
+        function ({ addUtilities }) {
+            addUtilities({
+                '.glass-morphism': {
+                    '@apply bg-[#171717]/60 backdrop-blur-xl border border-white/10': {},
+                },
+                '.premium-shadow': {
+                    'box-shadow': '0 20px 40px -15px rgba(0, 0, 0, 0.5)',
+                },
+                '.text-gradient': {
+                    '@apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400': {},
+                },
+                '.inner-glow': {
+                    'box-shadow': 'inset 0 0 20px rgba(255, 255, 255, 0.05)',
+                },
+            })
+        },
+    ],
 }
