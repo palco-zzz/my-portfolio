@@ -6,6 +6,11 @@ module.exports = {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Outfit', 'sans-serif'],
+                serif: ['Playfair Display', 'serif'],
+                mono: ['JetBrains Mono', 'monospace'],
+            },
             animation: {
                 scroll: 'scroll 15s linear infinite',
                 marquee: 'marquee 25s linear infinite',

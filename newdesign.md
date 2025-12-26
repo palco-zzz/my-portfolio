@@ -3,6 +3,10 @@ import * as THREE from 'three'; // Import Three.js langsung
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   ArrowUpRight, 
+  Github, 
+  Linkedin, 
+  Instagram, 
+  Mail, 
   ArrowRight,
   X 
 } from 'lucide-react';
@@ -117,9 +121,8 @@ const ThreeBackground = () => {
     // Mengaktifkan shadow map untuk realisme tambahan (jika diperlukan)
     renderer.shadowMap.enabled = true;
     
-    const mount = mountRef.current;
-    if (mount) {
-      mount.appendChild(renderer.domElement);
+    if (mountRef.current) {
+      mountRef.current.appendChild(renderer.domElement);
     }
 
     // 2. Pencahayaan Dramatis
@@ -299,8 +302,8 @@ const ThreeBackground = () => {
       window.removeEventListener('scroll', onDocumentScroll); 
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationId);
-      if (mount && renderer.domElement) {
-        mount.removeChild(renderer.domElement);
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
       }
       shapes.forEach(item => {
         item.mesh.geometry.dispose();
