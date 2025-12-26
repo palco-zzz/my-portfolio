@@ -494,6 +494,7 @@ const App = () => {
                     key={index}
                     variants={letterVariants}
                     whileHover="hover" 
+                    whileTap="hover"
                     className="inline-block origin-bottom px-1" 
                   >
                     {letter}
