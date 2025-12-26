@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { HyperText } from './components/HyperText';
 import { TechMarquee } from './components/TechMarquee';
+import { Preloader } from './components/Preloader';
 
 // --- VARIAN ANIMASI (FRAMER MOTION) ---
 
@@ -184,72 +185,142 @@ const ThreeBackground = () => {
     // 5. Membuat Objek Geometri Utama
     const shapes = [];
 
-    const createTechCrystal = (geometry, color, position) => {
-      // Material Kaca Premium
-      const material = new THREE.MeshPhysicalMaterial({
-        color: color,
-        roughness: 0.1,  // Sangat halus/mengkilap
-        metalness: 0.1,
-        transmission: 0.9, // Sangat transparan
-        thickness: 1.0,
-        ior: 1.5,       // Indeks bias seperti kaca
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide
-      });
-      
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.set(...position);
-      
-      // TAMBAHAN: Wireframe Overlay (Efek Tech)
-      // Membuat kerangka kawat putih tipis di sekeliling objek
-      const wireGeo = new THREE.WireframeGeometry(geometry);
-      const wireMat = new THREE.LineBasicMaterial({ 
-          color: 0xffffff, 
-          transparent: true, 
-          opacity: 0.15 
-      });
-      const wireframe = new THREE.LineSegments(wireGeo, wireMat);
-      mesh.add(wireframe); // Menjadikan wireframe anak dari mesh utama
-
-      scene.add(mesh);
-      
-      return { 
-        mesh, 
-        initialX: position[0],
-        initialY: position[1], 
-        initialZ: position[2],
-        speed: Math.random() * 0.5 + 0.2 
-      };
+    // Material Factory
+    const getMaterial = (color) => {
+        if (isMobile) {
+            // Mobile: High performance "Hologram" look
+            return new THREE.MeshBasicMaterial({
+                color: color,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.4
+            });
+        } else {
+            // Desktop: Premium Glass look
+            return new THREE.MeshPhysicalMaterial({
+                color: color,
+                roughness: 0.1,
+                metalness: 0.1,
+                transmission: 0.9,
+                thickness: 1.0,
+                ior: 1.5,
+                transparent: true,
+                opacity: 0.9,
+                side: THREE.DoubleSide
+            });
+        }
     };
 
-    // --- OBJEK 1 (HERO): Octahedron (Berlian) ---
-    shapes.push(createTechCrystal(
-      new THREE.OctahedronGeometry(1.4, 0), // Bentuk tajam seperti berlian
-      0xffffff, 
-      [-3.5, 2, -5] 
-    ));
+    const createComplexObject = (type, color, position) => {
+        const meshGroup = new THREE.Group();
+        meshGroup.position.set(...position);
 
-    // --- OBJEK 2 (PROJECTS): Torus Knot (Cincin Kompleks) ---
-    shapes.push(createTechCrystal(
-      new THREE.TorusKnotGeometry(0.8, 0.25, isMobile ? 64 : 100, isMobile ? 8 : 16), 
-      0x3b82f6, // Biru
-      [4, -12, -8] 
-    ));
+        let mainMesh;
+        const material = getMaterial(color);
 
-    // --- OBJEK 3 (FOOTER): Icosahedron (Kristal Bola) ---
-    shapes.push(createTechCrystal(
-      new THREE.IcosahedronGeometry(1.5, 0), 
-      0x6366f1, // Indigo
-      [-3, -22, -6] 
-    ));
+        if (type === 'hero') {
+            // Complex Gyroscope
+            const coreGeo = new THREE.IcosahedronGeometry(1, 0);
+            mainMesh = new THREE.Mesh(coreGeo, material);
+            
+            // Rings
+            const ring1Geo = new THREE.TorusGeometry(1.4, 0.02, 16, 100);
+            const ring1 = new THREE.Mesh(ring1Geo, new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.3 }));
+            ring1.rotation.x = Math.PI / 2;
+            
+            const ring2Geo = new THREE.TorusGeometry(1.8, 0.02, 16, 100);
+            const ring2 = new THREE.Mesh(ring2Geo, new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.3 }));
+            
+            meshGroup.add(mainMesh);
+            meshGroup.add(ring1);
+            meshGroup.add(ring2);
+            
+            // Custom animation property
+            meshGroup.userData = { type: 'gyro', ring1, ring2 };
+
+        } else if (type === 'knot') {
+            // Complex Knot
+            const geo = new THREE.TorusKnotGeometry(0.8, 0.25, isMobile ? 64 : 128, isMobile ? 8 : 16);
+            mainMesh = new THREE.Mesh(geo, material);
+            meshGroup.add(mainMesh);
+        } else if (type === 'statue') {
+            // Abstract Cyber Statue / Totem
+            // Base
+            const baseGeo = new THREE.CylinderGeometry(0.6, 0.8, 0.5, 6);
+            const base = new THREE.Mesh(baseGeo, material);
+            base.position.y = -1.8;
+            
+            // Body (Pillar)
+            const bodyGeo = new THREE.ConeGeometry(0.6, 3, 6);
+            const body = new THREE.Mesh(bodyGeo, material);
+            
+            // Head (Floating Abstract)
+            const headGeo = new THREE.IcosahedronGeometry(0.7, 0);
+            const head = new THREE.Mesh(headGeo, material);
+            head.position.y = 2.2;
+
+            // Orbiting Rings (Halo)
+            const haloGeo = new THREE.TorusGeometry(1.2, 0.03, 16, 50);
+            const halo = new THREE.Mesh(haloGeo, new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 0.5 }));
+            halo.position.y = 2.2;
+            halo.rotation.x = Math.PI / 2;
+
+            meshGroup.add(base);
+            meshGroup.add(body);
+            meshGroup.add(head);
+            meshGroup.add(halo);
+            
+            meshGroup.userData = { type: 'statue', head, halo };
+        } else {
+            // Standard Crystal
+            const geo = new THREE.OctahedronGeometry(1.5);
+            mainMesh = new THREE.Mesh(geo, material);
+            meshGroup.add(mainMesh);
+        }
+
+        // Add Wireframe overlay for Desktop only (since mobile is already wireframe)
+        if (!isMobile && type !== 'statue') { // Statue has multiple parts, handled differently or skip wireframe for simplicity
+             const wireGeo = new THREE.WireframeGeometry(mainMesh.geometry);
+             const wireMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
+             const wireframe = new THREE.LineSegments(wireGeo, wireMat);
+             mainMesh.add(wireframe);
+        }
+        // Special wireframe handling for statue parts if needed, or just rely on material
+        if (!isMobile && type === 'statue') {
+             // Add wireframe to head only for effect
+             const headWire = new THREE.LineSegments(
+                 new THREE.WireframeGeometry(meshGroup.userData.head.geometry),
+                 new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 })
+             );
+             meshGroup.userData.head.add(headWire);
+        }
+
+        scene.add(meshGroup);
+
+        return {
+            mesh: meshGroup,
+            initialX: position[0],
+            initialY: position[1],
+            initialZ: position[2],
+            speed: Math.random() * 0.5 + 0.2,
+            type: type
+        };
+    };
+
+    // --- OBJEK 1 (HERO): Gyroscope ---
+    shapes.push(createComplexObject('hero', 0xffffff, [-3.5, 2, -5]));
+
+    // --- OBJEK 2 (PROJECTS): Complex Knot ---
+    shapes.push(createComplexObject('knot', 0x3b82f6, [4, -12, -8]));
+
+    // --- OBJEK 3 (FOOTER): Crystal ---
+    shapes.push(createComplexObject('crystal', 0x6366f1, [-3, -22, -6]));
     
-    // --- OBJEK 4 (FILLER): Tetrahedron Kecil ---
-    shapes.push(createTechCrystal(
-        new THREE.TetrahedronGeometry(0.6), 
-        0xa855f7, // Ungu
-        [2, -6, -4] 
-    ));
+    // --- OBJEK 4 (FILLER): Small Crystal ---
+    shapes.push(createComplexObject('crystal', 0xa855f7, [2, -6, -4]));
+
+    // --- OBJEK 5 (NEW): Cyber Statue ---
+    shapes.push(createComplexObject('statue', 0x06b6d4, [-4, -16, -7])); // Cyan color, positioned between projects and footer
 
     camera.position.z = 12;
 
@@ -272,6 +343,26 @@ const ThreeBackground = () => {
         item.mesh.rotation.y = t * 0.3 + index + (scrollY * 0.002);
         // Tambahkan rotasi Z untuk dinamika lebih
         item.mesh.rotation.z = t * 0.1; 
+
+        // Gyroscope specific animation
+        if (item.mesh.userData.type === 'gyro') {
+            item.mesh.userData.ring1.rotation.x += 0.02;
+            item.mesh.userData.ring1.rotation.y += 0.01;
+            item.mesh.userData.ring2.rotation.x -= 0.01;
+            item.mesh.userData.ring2.rotation.y += 0.02;
+        }
+
+        // Statue specific animation
+        if (item.mesh.userData.type === 'statue') {
+            // Head looks around
+            item.mesh.userData.head.rotation.y = Math.sin(t * 0.5) * 0.5;
+            // Halo spins and wobbles
+            item.mesh.userData.halo.rotation.z -= 0.02;
+            item.mesh.userData.halo.rotation.x = (Math.PI / 2) + Math.sin(t) * 0.1;
+            // Keep statue upright-ish despite global rotation
+            item.mesh.rotation.x = 0; 
+            item.mesh.rotation.z = Math.sin(t * 0.5) * 0.05; // Slight sway
+        }
         
         // Posisi & Parallax
         const floatingY = Math.sin(t * item.speed) * 0.3;
@@ -306,17 +397,27 @@ const ThreeBackground = () => {
       if (mount && renderer.domElement) {
         mount.removeChild(renderer.domElement);
       }
+      
+      // Fix cleanup for Groups
       shapes.forEach(item => {
-        item.mesh.geometry.dispose();
-        item.mesh.material.dispose();
-        // Bersihkan wireframe juga
-        item.mesh.children.forEach(child => {
-            if(child.geometry) child.geometry.dispose();
-            if(child.material) child.material.dispose();
+        // Traverse the group to find all meshes
+        item.mesh.traverse((child) => {
+            if (child.isMesh) {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(m => m.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            }
         });
       });
+
       particlesGeometry.dispose();
       particlesMaterial.dispose();
+      renderer.dispose();
     };
   }, []);
 
@@ -356,8 +457,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 150);
-    return () => clearTimeout(timer);
+    // Loading handled by Preloader component
   }, []);
 
   useEffect(() => {
@@ -394,6 +494,10 @@ const App = () => {
   return (
     <div ref={containerRef} className="relative bg-[#080808] text-white selection:bg-blue-500 selection:text-white overflow-x-hidden min-h-screen">
       
+      <AnimatePresence mode="wait">
+        {!isLoaded && <Preloader onComplete={() => setIsLoaded(true)} />}
+      </AnimatePresence>
+
       {/* --- NEW: CURSOR SPOTLIGHT --- */}
       <div 
         className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
@@ -430,7 +534,7 @@ const App = () => {
                   href={`#${item}`}
                   onClick={(e) => handleScroll(e, `#${item}`)}
                   variants={menuItemVariants}
-                  className="text-5xl md:text-7xl font-serif italic tracking-tighter hover:text-blue-500 transition-colors cursor-pointer"
+                  className="text-5xl md:text-7xl font-serif italic tracking-tighter hover:text-blue-500 active:text-blue-500 transition-colors cursor-pointer"
                 >
                   {item.charAt(0).toUpperCase() + item.slice(1)}
                 </motion.a>
@@ -478,7 +582,7 @@ const App = () => {
                key={item} 
                href={`#${item}`} 
                onClick={(e) => handleScroll(e, `#${item}`)}
-               className="text-[10px] uppercase tracking-widest opacity-60 hover:opacity-100 hover:text-blue-400 transition-all"
+               className="text-[10px] uppercase tracking-widest opacity-60 hover:opacity-100 hover:text-blue-400 active:opacity-100 active:text-blue-400 transition-all"
              >
                {item}
              </a>
@@ -487,7 +591,7 @@ const App = () => {
 
         <button 
           onClick={() => setIsMenuOpen(true)}
-          className="md:hidden text-[10px] uppercase tracking-widest font-bold hover:text-blue-400 transition-colors"
+          className="md:hidden text-[10px] uppercase tracking-widest font-bold hover:text-blue-400 active:text-blue-400 transition-colors"
         >
           Menu
         </button>
@@ -582,11 +686,11 @@ const App = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="group block border-b border-white/10 py-12 md:py-20 flex flex-col md:flex-row md:items-center justify-between cursor-pointer hover:bg-white/5 transition-colors px-4 relative overflow-hidden"
+                className="group block border-b border-white/10 py-12 md:py-20 flex flex-col md:flex-row md:items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/5 transition-colors px-4 relative overflow-hidden"
               >
                 <div className="flex items-baseline gap-6 mb-4 md:mb-0 z-10">
                   <span className="font-mono text-[10px] opacity-30 italic">0{i + 1}</span>
-                  <h4 className="text-4xl md:text-8xl font-serif tracking-tighter group-hover:italic transition-all duration-500">
+                  <h4 className="text-4xl md:text-8xl font-serif tracking-tighter group-hover:italic group-active:italic transition-all duration-500">
                     <HyperText>{project.title}</HyperText>
                   </h4>
                 </div>
@@ -596,7 +700,7 @@ const App = () => {
                     <p className="text-[9px] uppercase tracking-widest opacity-40 mb-1">{project.type}</p>
                     <p className="text-sm font-medium">{project.year}</p>
                   </div>
-                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                  <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black group-active:bg-white group-active:text-black transition-all">
                     <ArrowUpRight size={20} />
                   </div>
                 </div>
@@ -605,8 +709,8 @@ const App = () => {
           </div>
 
           <div className="mt-20 flex justify-center">
-             <button className="group flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-bold opacity-40 hover:opacity-100 transition-all">
-               View All Works <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+             <button className="group flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-bold opacity-40 hover:opacity-100 active:opacity-100 transition-all">
+               View All Works <ArrowRight size={14} className="group-hover:translate-x-2 group-active:translate-x-2 transition-transform" />
              </button>
           </div>
         </div>
@@ -658,10 +762,11 @@ const App = () => {
               href="mailto:falfatoni@gmail.com" 
               className="inline-block group relative"
               whileHover="hover"
+              whileTap="hover"
             >
               <div className="relative overflow-hidden">
                 <motion.span 
-                  className="block text-6xl md:text-[130px] font-serif italic tracking-tighter leading-none relative z-10 transition-colors duration-500 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-indigo-500"
+                  className="block text-6xl md:text-[130px] font-serif italic tracking-tighter leading-none relative z-10 transition-colors duration-500 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-indigo-500 group-active:text-transparent group-active:bg-clip-text group-active:bg-gradient-to-r group-active:from-blue-400 group-active:to-indigo-500"
                 >
                   Let's Collaborate
                 </motion.span>
@@ -691,7 +796,7 @@ const App = () => {
                   href={link.url} 
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[9px] uppercase tracking-[0.2em] font-bold opacity-40 hover:opacity-100 transition-opacity"
+                  className="text-[9px] uppercase tracking-[0.2em] font-bold opacity-40 hover:opacity-100 active:opacity-100 transition-opacity"
                 >
                   {link.name}
                 </a>
@@ -701,7 +806,7 @@ const App = () => {
               © 2025 zxenxi.dev — All rights reserved
             </p>
             <div className="flex gap-10">
-               <span className="text-[9px] uppercase tracking-[0.2em] opacity-40 italic cursor-pointer hover:text-white" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>Back to top</span>
+               <span className="text-[9px] uppercase tracking-[0.2em] opacity-40 italic cursor-pointer hover:text-white active:text-white" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>Back to top</span>
             </div>
           </div>
         </div>
