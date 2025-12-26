@@ -104,18 +104,20 @@ const ThreeBackground = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+
     // 1. Inisialisasi Scene
     const scene = new THREE.Scene();
     // Tambahkan kabut (fog) hitam tipis untuk kedalaman atmosfer
     scene.fog = new THREE.FogExp2(0x000000, 0.03);
 
     const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !isMobile });
     
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 2)); 
     // Mengaktifkan shadow map untuk realisme tambahan (jika diperlukan)
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = !isMobile;
     
     const mount = mountRef.current;
     if (mount) {
@@ -157,7 +159,7 @@ const ThreeBackground = () => {
 
     // 4. PARTIKEL DEBU/BINTANG (STARFIELD)
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 800; // Jumlah partikel
+    const particlesCount = isMobile ? 300 : 800; // Jumlah partikel
     const posArray = new Float32Array(particlesCount * 3);
 
     for(let i = 0; i < particlesCount * 3; i++) {
@@ -228,7 +230,7 @@ const ThreeBackground = () => {
 
     // --- OBJEK 2 (PROJECTS): Torus Knot (Cincin Kompleks) ---
     shapes.push(createTechCrystal(
-      new THREE.TorusKnotGeometry(0.8, 0.25, 100, 16), 
+      new THREE.TorusKnotGeometry(0.8, 0.25, isMobile ? 64 : 100, isMobile ? 8 : 16), 
       0x3b82f6, // Biru
       [4, -12, -8] 
     ));
