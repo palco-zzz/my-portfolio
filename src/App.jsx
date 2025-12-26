@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three'; // Import Three.js langsung
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { 
   ArrowUpRight, 
   ArrowRight,
   X 
 } from 'lucide-react';
+import { HyperText } from './components/HyperText';
+import { TechMarquee } from './components/TechMarquee';
 
 // --- VARIAN ANIMASI (FRAMER MOTION) ---
 
@@ -326,7 +328,19 @@ const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress, scrollY } = useScroll();
+
+  // --- NEW: MOUSE SPOTLIGHT STATE ---
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const updateMousePosition = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", updateMousePosition);
+    return () => window.removeEventListener("mousemove", updateMousePosition);
+  }, []);
+  // ----------------------------------
 
   const nameLetters = "zxenxi".split("");
 
@@ -364,7 +378,7 @@ const App = () => {
     },
     { 
       title: "Mie Lethek Palur", 
-      year: "2024", 
+      year: "2025", 
       type: "Culinary & E-Commerce", 
       link: "https://www.mielethekpalur.com" 
     },
@@ -372,7 +386,7 @@ const App = () => {
 
   // Data Social Media dengan URL asli
   const socialLinks = [
-    { name: 'Instagram', url: '#' }, // Placeholder jika belum ada
+    { name: 'Instagram', url: 'https://www.instagram.com/zxenxi/' }, // Placeholder jika belum ada
     { name: 'LinkedIn', url: 'https://www.linkedin.com/in/firmansyah-al-fatoni-774905247/' },
     { name: 'Github', url: '#' } // Placeholder jika belum ada
   ];
@@ -380,6 +394,15 @@ const App = () => {
   return (
     <div ref={containerRef} className="relative bg-[#080808] text-white selection:bg-blue-500 selection:text-white overflow-x-hidden min-h-screen">
       
+      {/* --- NEW: CURSOR SPOTLIGHT --- */}
+      <div 
+        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(600px at ${mousePosition.x}px ${mousePosition.y}px, rgba(29, 78, 216, 0.15), transparent 80%)`
+        }}
+      />
+      {/* ----------------------------- */}
+
       {/* Background 3D Vanilla Three.js */}
       <ThreeBackground />
 
@@ -431,38 +454,45 @@ const App = () => {
         )}
       </AnimatePresence>
 
-      {/* Navigasi Utama */}
-      <nav className="fixed top-0 left-0 w-full z-50 p-8 flex justify-between items-center mix-blend-difference">
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="text-lg font-bold tracking-tighter cursor-pointer z-[60]"
+      {/* --- REPLACED NAV: FLOATING ISLAND --- */}
+      <motion.nav 
+        variants={{
+          visible: { y: 0, opacity: 1 },
+          hidden: { y: -100, opacity: 0 }
+        }}
+        animate="visible"
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+        className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 px-6 py-3 rounded-full border border-white/10 bg-white/5 backdrop-blur-md shadow-lg shadow-black/20"
+      >
+        <div 
+          className="text-sm font-bold tracking-tighter cursor-pointer hover:text-blue-400 transition-colors"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
           zxenxi.dev
-        </motion.div>
+        </div>
         
-        <div className="hidden md:flex gap-12 text-[11px] uppercase tracking-[0.3em] font-medium opacity-50 hover:opacity-100 transition-opacity z-[60]">
+        <div className="hidden md:flex items-center gap-6">
+          <div className="w-[1px] h-4 bg-white/20"></div>
           {['work', 'about', 'contact'].map((item) => (
              <a 
                key={item} 
                href={`#${item}`} 
                onClick={(e) => handleScroll(e, `#${item}`)}
-               className="hover:line-through cursor-pointer"
+               className="text-[10px] uppercase tracking-widest opacity-60 hover:opacity-100 hover:text-blue-400 transition-all"
              >
-               {item.charAt(0).toUpperCase() + item.slice(1)}
+               {item}
              </a>
           ))}
         </div>
 
         <button 
           onClick={() => setIsMenuOpen(true)}
-          className="text-[11px] uppercase tracking-widest font-bold border border-white/20 px-6 py-2 rounded-full hover:bg-white hover:text-black transition-all backdrop-blur-sm z-[60]"
+          className="md:hidden text-[10px] uppercase tracking-widest font-bold hover:text-blue-400 transition-colors"
         >
           Menu
         </button>
-      </nav>
+      </motion.nav>
+      {/* ------------------------------------- */}
 
       {/* Hero Section */}
       <section className="relative h-screen flex flex-col items-center justify-center text-center px-6 z-10 perspective-1000">
@@ -557,7 +587,7 @@ const App = () => {
                 <div className="flex items-baseline gap-6 mb-4 md:mb-0 z-10">
                   <span className="font-mono text-[10px] opacity-30 italic">0{i + 1}</span>
                   <h4 className="text-4xl md:text-8xl font-serif tracking-tighter group-hover:italic transition-all duration-500">
-                    {project.title}
+                    <HyperText>{project.title}</HyperText>
                   </h4>
                 </div>
                 
@@ -583,8 +613,8 @@ const App = () => {
       </section>
 
       {/* Bagian Tentang Saya */}
-      <section id="about" className="py-40 px-6 bg-[#0a0a0a] relative z-10">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-20">
+      <section id="about" className="py-40 bg-[#0a0a0a] relative z-10">
+        <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-20 mb-20">
           <div>
             <h3 className="text-4xl md:text-6xl font-serif italic mb-8">Creative Tech Engineering.</h3>
             <p className="text-gray-400 text-lg leading-relaxed mb-8">
@@ -593,18 +623,14 @@ const App = () => {
           </div>
           <div className="flex flex-col justify-end space-y-12">
             <div>
-              <h5 className="text-[9px] uppercase tracking-widest opacity-30 mb-4 font-bold">Core Focus</h5>
-              <div className="flex flex-wrap gap-2">
-                {['Interactive UI', '3D Web', 'Performance', 'Astro', 'React'].map(tag => (
-                  <span key={tag} className="px-3 py-1.5 rounded-full border border-white/10 text-[10px] font-mono hover:bg-white hover:text-black transition-colors cursor-default">{tag}</span>
-                ))}
-              </div>
-            </div>
-            <div>
                <h5 className="text-[9px] uppercase tracking-widest opacity-30 mb-4 font-bold">Vision</h5>
                <p className="font-serif text-2xl">Building for the next generation of founders and visionaries.</p>
             </div>
           </div>
+        </div>
+
+        <div className="w-full">
+          <TechMarquee />
         </div>
       </section>
 
