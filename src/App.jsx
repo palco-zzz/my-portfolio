@@ -477,6 +477,12 @@ const App = () => {
       link: "https://ppka.umpwr.ac.id/" 
     },
     { 
+      title: "SMK Penabur", 
+      year: "2024", 
+      type: "School Website", 
+      link: "https://smkpenaburpurworejo.my.id/" 
+    },
+    { 
       title: "Mie Lethek Palur", 
       year: "2025", 
       type: "Culinary & E-Commerce", 
