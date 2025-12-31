@@ -428,6 +428,7 @@ const ThreeBackground = () => {
 const App = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
+  const [showAllProjects, setShowAllProjects] = useState(false);
   const containerRef = useRef(null);
   const { scrollYProgress, scrollY } = useScroll();
 
@@ -487,6 +488,12 @@ const App = () => {
       year: "2025", 
       type: "Culinary & E-Commerce", 
       link: "https://www.mielethekpalur.com" 
+    },
+    { 
+      title: "Rotibakar POS", 
+      year: "2025", 
+      type: "POS Management System", 
+      link: "https://rotibakar.smkpenaburpurworejo.my.id/login" 
     },
   ];
 
@@ -682,7 +689,7 @@ const App = () => {
           <h3 className="text-[10px] uppercase tracking-[0.4em] opacity-30 mb-20 border-l-2 border-white/20 pl-4">Selected Projects</h3>
           
           <div className="space-y-0 border-t border-white/10">
-            {projects.map((project, i) => (
+            {projects.slice(0, showAllProjects ? projects.length : 3).map((project, i) => (
               <motion.a 
                 key={i}
                 href={project.link}
@@ -692,7 +699,7 @@ const App = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="group block border-b border-white/10 py-12 md:py-20 flex flex-col md:flex-row md:items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/5 transition-colors px-4 relative overflow-hidden"
+                className="group border-b border-white/10 py-12 md:py-20 flex flex-col md:flex-row md:items-center justify-between cursor-pointer hover:bg-white/5 active:bg-white/5 transition-colors px-4 relative overflow-hidden"
               >
                 <div className="flex items-baseline gap-6 mb-4 md:mb-0 z-10">
                   <span className="font-mono text-[10px] opacity-30 italic">0{i + 1}</span>
@@ -714,11 +721,16 @@ const App = () => {
             ))}
           </div>
 
-          <div className="mt-20 flex justify-center">
-             <button className="group flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-bold opacity-40 hover:opacity-100 active:opacity-100 transition-all">
-               View All Works <ArrowRight size={14} className="group-hover:translate-x-2 group-active:translate-x-2 transition-transform" />
-             </button>
-          </div>
+          {!showAllProjects && projects.length > 3 && (
+            <div className="mt-20 flex justify-center">
+               <button 
+                 onClick={() => setShowAllProjects(true)}
+                 className="group flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-bold opacity-40 hover:opacity-100 active:opacity-100 transition-all"
+               >
+                 View All Works <ArrowRight size={14} className="group-hover:translate-x-2 group-active:translate-x-2 transition-transform" />
+               </button>
+            </div>
+          )}
         </div>
       </section>
 

@@ -369,6 +369,12 @@ const App = () => {
       type: "Culinary & E-Commerce", 
       link: "https://www.mielethekpalur.com" 
     },
+    { 
+      title: "Rotibakar POS", 
+      year: "2025", 
+      type: "POS Management System", 
+      link: "https://rotibakar.smkpenaburpurworejo.my.id/login" 
+    },
   ];
 
   // Data Social Media dengan URL asli

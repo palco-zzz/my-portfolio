@@ -621,6 +621,33 @@ export default function App() {
                 </div>
               </motion.div>
 
+              {/* Project 4: Rotibakar POS */}
+              <motion.div 
+                variants={fadeInUp}
+                initial="rest"
+                whileHover="hover"
+                animate="rest"
+                custom={scaleHover}
+                className="backdrop-blur-xl bg-[#171717]/60 border border-white/10 rounded-[2rem] p-3 group cursor-pointer"
+              >
+                <motion.div variants={scaleHover} className="rounded-[1.5rem] overflow-hidden aspect-[4/3] mb-4 relative">
+                  <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1974&auto=format&fit=crop" 
+                       alt="Rotibakar POS" 
+                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                       <a href="https://rotibakar.smkpenaburpurworejo.my.id/login" target="_blank" rel="noopener noreferrer" className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium">View System</a>
+                   </div>
+                </motion.div>
+                <div className="px-3 pb-2">
+                  <h3 className="text-xl font-bold mb-1">Rotibakar POS</h3>
+                  <p className="text-neutral-400 text-sm line-clamp-2">Point of Sale management system for Rotibakar, streamlining sales and inventory tracking.</p>
+                  <div className="flex gap-2 mt-4 flex-wrap">
+                    <span className="text-xs px-2 py-1 rounded-md bg-white/5 border border-white/5 text-neutral-300">POS System</span>
+                    <span className="text-xs px-2 py-1 rounded-md bg-white/5 border border-white/5 text-neutral-300">Management</span>
+                  </div>
+                </div>
+              </motion.div>
+
               {/* Project 3 */}
               <motion.div 
                 variants={fadeInUp}
